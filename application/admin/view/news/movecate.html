@@ -1,0 +1,26 @@
+<!--
+ * @Author: he4966
+-->
+<form id="movecate-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    {:token()}
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Cate_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-cate_id" min="0" data-rule="required" data-source="cate/index" class="form-control selectpage" name="cate_id" data-params='{"custom[table_name]":["eq","fa_news"]}' type="text" value="">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('文章IDS')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-ids" class="form-control" rows="10"  name="ids" cols="10">{$ids}</textarea>
+        </div>
+    </div>
+   
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
+        </div>
+    </div>
+</form>

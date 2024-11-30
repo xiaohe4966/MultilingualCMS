@@ -1,0 +1,206 @@
+<!--
+ * @Author: XiaoHe
+-->
+<footer class="main-footer">
+    <div class="auto-container">
+        <!--Widgets Section-->
+        <div class="widgets-section">
+            <div class="row clearfix">
+                
+                <!--big column-->
+                <div class="big-column col-md-6 col-sm-12 col-xs-12">
+                    <div class="row clearfix">
+                    
+                        <!--Footer Column-->
+                        <div class="footer-column col-md-7 col-sm-6 col-xs-12">
+                            <div class="footer-widget logo-widget">
+                                <div class="logo">
+                                    <a href="{$site.index_url}"><img src="__CMS__/images/foter-logo.png" alt="" /></a>
+                                </div>
+                                <div class="text">核心代码简洁、明了，适用于微信小程序/公众号，PC网站，手机网站，App（Api接口）等集于一体的Tp框架，后台直接生成数据库的增删改查，方便二次开开发，了解thinkphp5即可上手...</div>
+                            </div>
+                        </div>
+                        
+                        <!--Footer Column-->
+                        <div class="footer-column col-md-5 col-sm-6 col-xs-12">
+                            <div class="footer-widget links-widget">
+                                <h2>快速链接</h2>
+                                <div class="widget-content">
+                                    <ul class="list">
+                                        {volist name="nav" id="v"}
+                                        <li><a href="{$v.url}">{$v.name}</a></li>
+                                        {/volist}
+                                       
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!--big column-->
+                <div class="big-column col-md-6 col-sm-12 col-xs-12">
+                    <div class="row clearfix">
+                    
+                        <!--Footer Column-->
+                        <div class="footer-column col-md-6 col-sm-6 col-xs-12">
+                            <div class="footer-widget links-widget">
+                                <h2>友情链接</h2>
+                                <div class="widget-content">
+                                    <!-- <ul class="list">
+                                        {tp:link  limit="1" }
+                                        <li><a href="{$link.url}" >{$key+1}.{$link.title}</a></li>
+                                        {/tp:link}
+                                    </ul> -->
+
+
+                                    <!-- <ul class="list">
+                                        {tp:link  limit="20" }
+                                        <li><a href="javascript:void(0);" onclick="sendLinkClickRequest(event,{$link.id});" data-url="{$link.url}" >{$key+1}.{$link.title}</a></li>
+                                        {/tp:link}
+                                    </ul>
+
+                                    <script>
+                                        // 这个函数会在用户点击链接时被调用
+                                        function sendLinkClickRequest(event,id) {
+                                            // 阻止默认的链接行为
+                                            event.preventDefault();
+                                
+                                            // 发送请求到增加点击次数
+                                            fetch('/api/cms/link_click?id='+id)
+                                                .then(response => {
+                                                    // 处理响应
+                                                    if (response.ok) {
+                                                        console.log('请求发送成功');
+                                                    } else {
+                                                        console.error('请求发送失败');
+                                                    }
+                                                    window.open(event.target.dataset.url);
+                                                })
+                                                .catch(error => {
+                                                    // 处理错误
+                                                    console.error('网络错误：', error);
+                                                    window.open(event.target.dataset.url);
+                                                });
+                                        }
+                                    </script> -->
+
+
+                                    <ul class="list">
+                                        {tp:link  limit="20" }
+                                        <li><a href="{$link.url}" onclick="sendLinkClickRequestAndOpenLink(event, {$link.id}); return false;">{$key+1}.{$link.title}</a></li>
+                                        {/tp:link}
+                                    </ul>
+
+                                    <script>
+                                        // 这个函数会在用户点击链接时被调用
+                                        function sendLinkClickRequestAndOpenLink(event, id) {
+                                            // 发送请求到服务器
+                                            fetch('/api/cms/link_click?id='+id)
+                                                .then(response => {
+                                                    // 检查请求是否成功
+                                                    if (response.ok) {
+                                                        // console.log('请求发送成功');
+                                                    } else {
+                                                        // console.error('请求发送失败');
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    // 处理网络错误
+                                                    // console.error('网络错误：', error);
+                                                });
+                                            // 打开链接在新窗口
+                                            window.open(event.target.href, '_blank');
+                                        }
+                                    </script>
+
+                                    
+
+
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!--Footer Column-->
+                        <div class="footer-column col-md-6 col-sm-6 col-xs-12">
+                            <div class="footer-widget info-widget">
+                                <h2>联系方式</h2>
+                                <div class="widget-content">
+                                    <div class="number">手机：{$site.tel}</div>
+                                    <div class="number">邮箱：{$site.email}</div>
+                                    <div class="text">{$site.addr}<bR>{$site.addr2}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!--Footer Bottom-->
+        <div class="footer-bottom">
+            <div class="clearfix">
+                <div class="pull-left">
+                    <div class="copyright">{$site.banquan}  <a href="https://beian.miit.gov.cn/">{$site.beian}</a></div>
+                </div>
+                <div class="pull-right">
+                    <div class="created">{$site.technical_support}</div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+</footer>
+
+<script>
+    // 水印图片地址
+    const watermarkUrl = '/cms/images/logo.png';
+
+    // 获取所有图片元素
+    const images = document.querySelectorAll('img');
+
+    // 遍历图片元素
+    images.forEach(image => {
+        // 创建一个canvas元素
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 设置canvas大小为图片大小
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        // 将图片绘制到canvas上
+        const img = new Image();
+        img.src = image.src;
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0);
+
+            // 绘制水印图片
+            const watermarkImg = new Image();
+            watermarkImg.src = watermarkUrl;
+            watermarkImg.onload = function() {
+                // 设置水印图片大小与原图片相同
+                const watermarkWidth = canvas.width;
+                const watermarkHeight = canvas.height;
+
+                // 设置水印透明度为0.11
+                ctx.globalAlpha = 0.11;
+
+                // 在画布中心绘制水印图片（可根据需求调整位置）
+                const x = (canvas.width - watermarkWidth) / 2;
+                const y = (canvas.height - watermarkHeight) / 2;
+                ctx.drawImage(watermarkImg, x, y, watermarkWidth, watermarkHeight);
+
+                // 恢复透明度设置，以免影响后续操作（如果有）
+                ctx.globalAlpha = 1;
+
+                // 将canvas转换为dataURL并设置为图片的src属性
+                image.src = canvas.toDataURL();
+            };
+        };
+    });
+</script>

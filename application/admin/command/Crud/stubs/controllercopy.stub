@@ -1,0 +1,26 @@
+
+    /**
+     * 复制
+     *
+     * @param $ids
+     * @return string
+     * @throws \think\Exception
+     */
+    public function copy($ids = null)
+    {
+        $row = $this->model->get($ids);
+        if (!$row) {
+            $this->error(__('No Results were found'));
+        }
+        unset($row->id);
+        try {
+            $result = $this->model->allowField(true)->save($row->toArray());
+        } catch (ValidateException|PDOException|Exception $e) {
+            $this->error($e->getMessage());
+        }
+        if (false === $result) {
+            $this->error(__('No rows were updated'));
+        }
+        $this->success();
+    }
+

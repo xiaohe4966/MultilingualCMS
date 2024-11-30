@@ -1,0 +1,54 @@
+<form id="multiedit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    {:token()}
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('multiedit_ids')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-ids" class="form-control" rows="10"  name="ids" cols="10">{$ids}</textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('multiedit_type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="radio">
+            <label for="type-copy"><input id="type-copy" name="row[type]" type="radio" value="copy" checked/>{:__('Copy')}</label> 
+            <label for="type-move"><input id="type-move" name="row[type]" type="radio" value="move" />{:__('Move')}</label> 
+            <label for="type-edit"><input id="type-edit" name="row[type]" type="radio" value="edit" />{:__('Edit')}</label> 
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" data-favisible="type=edit">
+        <label class="control-label col-xs-12 col-sm-2">{:__('field')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('field', $fields, null, ['class'=>'form-control selectpicker', 'multiple'=>'', 'data-rule'=>'required'])}     
+        </div>
+    </div>
+
+    <div class="form-group" data-favisible="type=edit">
+        <label class="control-label col-xs-12 col-sm-2">{:__('value')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-value"  data-rule="required"  class="form-control" name="row[value]" type="text" placeholder="{:__('multiedit_value')}" value="">
+        </div>
+    </div>
+
+    <div class="form-group" data-favisible="type!=edit">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Cate_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-cate_id" min="0" data-rule="required" data-source="cate/index" class="form-control selectpage" name="cate_id" type="text" value="">
+        </div>
+    </div>
+
+
+
+
+   
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-primary btn-embossed disabled">{:__('OK')}</button>
+        </div>
+    </div>
+</form>
