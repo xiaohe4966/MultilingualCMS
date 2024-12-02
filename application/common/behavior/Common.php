@@ -2,6 +2,9 @@
 /*
  * @Author: he4966
  */
+/*
+ * @Author: he4966
+ */
 
 namespace app\common\behavior;
 
@@ -14,9 +17,14 @@ class Common
 
     public function appInit()
     {
-        $allowLangList = Config::get('allow_lang_list') ?? ['zh-cn', 'en'];
+        // $allowLangList = Config::get('allow_lang_list') ?? ['zh-cn', 'en'];
         $allowLangList = getWebListLangArray() ?? Config::get('allow_lang_list');
         Lang::setAllowLangList($allowLangList);
+
+        $webLang = request()->param('webLang');
+        if ($webLang && in_array($webLang, $allowLangList)) {
+            \think\Cookie::set('webLang', $webLang);
+        }
     }
 
     public function appDispatch(&$dispatch)
