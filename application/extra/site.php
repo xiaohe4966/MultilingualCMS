@@ -30,6 +30,7 @@ return array (
     'cms' => 'CMS配置',
     'gbook' => '留言配置',
     'superadmin' => '超级管理员',
+    'translate' => '翻译',
   ),
   'mail_type' => '1',
   'mail_smtp_host' => 'smtp.qq.com',
@@ -75,4 +76,7 @@ return array (
   'default_auth_rule_pid' => '',
   'crud_copy_switch' => '0',
   'link_auto_hide' => '1',
+  'baidu_app_id' => '20220913001341285',
+  'baidu_app_secret' => '27kDTUk0dVXMsUCBsi1l',
+  'fanyi_app' => 'baidu',
 );

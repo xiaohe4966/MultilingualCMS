@@ -110,6 +110,11 @@ class Backend extends Controller
     protected $importHeadType = 'comment';
 
     /**
+     * 管理语言
+     */
+    protected $webLang = 'zh-cn';
+
+    /**
      * 引入后台控制器的traits
      */
     use \app\admin\library\traits\Backend;
@@ -188,6 +193,14 @@ class Backend extends Controller
         if ($this->layout) {
             $this->view->engine->layout('layout/' . $this->layout);
         }
+        $this->assign('lang_list', getWebList());
+        $webLang = \think\Cookie::get('webLang');
+        if ($webLang) {
+            $this->webLang = $webLang;
+        }else{
+            $this->webLang = $this->request->param('webLang', config('default_lang'));
+        }
+        $this->assign('webLang', $this->webLang);
 
         // 语言检测
         $lang = $this->request->langset();
@@ -291,7 +304,7 @@ class Backend extends Controller
             $aliasName = $alias[$name] . '.';
         }
         $sortArr = explode(',', $sort);
-        foreach ($sortArr as $index => & $item) {
+        foreach ($sortArr as $index => &$item) {
             $item = stripos($item, ".") === false ? $aliasName . trim($item) : $item;
         }
         unset($item);
@@ -398,8 +411,10 @@ class Backend extends Controller
                         $arr = $arr[0];
                     }
                     $tableArr = explode('.', $k);
-                    if (count($tableArr) > 1 && $tableArr[0] != $name && !in_array($tableArr[0], $alias)
-                        && !empty($this->model) && $this->relationSearch) {
+                    if (
+                        count($tableArr) > 1 && $tableArr[0] != $name && !in_array($tableArr[0], $alias)
+                        && !empty($this->model) && $this->relationSearch
+                    ) {
                         //修复关联模型下时间无法搜索的BUG
                         $relation = Loader::parseName($tableArr[0], 1, false);
                         $alias[$this->model->$relation()->getTable()] = $tableArr[0];

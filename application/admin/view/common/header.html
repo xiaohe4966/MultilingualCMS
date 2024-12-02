@@ -28,6 +28,18 @@
                     <a href="__PUBLIC__" target="_blank"><i class="fa fa-home" style="font-size:14px;"></i> {:__('Home')}</a>
                 </li>
 
+                <li class="hidden-xs">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">我要管理<i class="fa fa-language"></i></a>
+                    <ul class="dropdown-menu">
+                        {volist name="lang_list" id="v"}
+                        <li class="{$v['lang']==$webLang?'active':''}">
+                            <a href="?ref=addtabs&webLang={$v.lang}">{$v.name}</a>
+                        </li>
+                        {/volist}
+                       
+                    </ul>
+                </li>
+
                 <!-- 清除缓存 -->
                 <li class="hidden-xs">
                     <a href="javascript:;" data-toggle="dropdown" title="{:__('Wipe cache')}">
@@ -45,20 +57,7 @@
                     </ul>
                 </li>
 
-                <!-- 多语言列表 -->
-                {if $Think.config.lang_switch_on}
-                <li class="hidden-xs">
-                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-language"></i></a>
-                    <ul class="dropdown-menu">
-                        <li class="{$config['language']=='zh-cn'?'active':''}">
-                            <a href="?ref=addtabs&lang=zh-cn">简体中文</a>
-                        </li>
-                        <li class="{$config['language']=='en'?'active':''}">
-                            <a href="?ref=addtabs&lang=en">English</a>
-                        </li>
-                    </ul>
-                </li>
-                {/if}
+  
 
                 <!-- 全屏按钮 -->
                 <li class="hidden-xs">
@@ -104,6 +103,21 @@
                         </li>
                     </ul>
                 </li>
+
+                <!-- 多语言列表 -->
+                {if $Think.config.lang_switch_on}
+                <li class="hidden-xs">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-language"></i></a>
+                    <ul class="dropdown-menu">
+                        <li class="{$config['language']=='zh-cn'?'active':''}">
+                            <a href="?ref=addtabs&lang=zh-cn">简体中文</a>
+                        </li>
+                        <li class="{$config['language']=='en'?'active':''}">
+                            <a href="?ref=addtabs&lang=en">English</a>
+                        </li>
+                    </ul>
+                </li>
+                {/if}
                 <!-- 控制栏切换按钮 -->
                 <li class="hidden-xs">
                     <a href="javascript:;" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>

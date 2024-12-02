@@ -57,6 +57,7 @@ class Cate extends Backend
             ->order('weigh DESC,id ASC')
             ->whereNull('deletetime')
             ->where($where)
+            ->where('lang',$this->webLang)
             ->select();
         foreach ($cateList as $k => &$v) {
             $v['name'] = __($v['name']);
@@ -64,7 +65,7 @@ class Cate extends Backend
             if ($更新栏目文章数量 && $v['type'] == 'list') {
                 //更新文章数量
                 try {
-                    $count = Db::table($v['table_name'])->where('cate_id', $v["id"])->whereNull('deletetime')->count();
+                    $count = Db::table($v['table_name'])->where('lang',$this->webLang)->where('cate_id', $v["id"])->whereNull('deletetime')->count();
                     Db::name('cate')->where('id', $v["id"])->update(['items' => $count]);
                 } catch (\Exception $e) {
                     Log::error('更新栏目文章数量失败：' . $v['table_name'] . $e->getMessage());

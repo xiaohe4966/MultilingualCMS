@@ -1,5 +1,8 @@
 <?php
 /*
+ * @Author: he4966
+ */
+/*
  * @Author: XiaoHe
  */
 /*
@@ -11,6 +14,7 @@ namespace app\admin\model;
 use think\Model;
 use traits\model\SoftDelete;
 use think\Db;
+use fast\Tree;
 
 class Cate extends Model
 {
@@ -43,7 +47,15 @@ class Cate extends Model
             $pk = $row->getPk();
             if($row->weigh<1)
                 $row->getQuery()->where($pk, $row[$pk])->update(['weigh' => $row[$pk]]);
+            // $this->updateLang($row[$pk]);
+            (new \app\common\library\LangCom())->updateCate($row[$pk]);
         });
+
+        //插入前回调
+        // self::beforeInsert(function ($row) {
+        //     if (!isset($row->id))
+        //         $row->id = self::max('id') + 1;
+        // });
 
         // 删除前回调
         self::beforeDelete(function ($row) {
@@ -57,7 +69,15 @@ class Cate extends Model
             // 删除该栏目下面的所有文章
             if ($row->type == 'list')
                 $res = Db::table($row->table_name)->where('cate_id', $row['id'])->useSoftDelete('deletetime', time())->whereNull('deletetime')->delete();
+            \app\common\library\LangCom::delCate($row['id']);
         });
+    }
+
+
+    public function updateLang($id=null){
+        //查询所有的主语言
+        $cateList = Db::table('cate')->where('lang','=',config('fastadmin.default_lang'))->whereNull('deletetime')->select();
+        Tree::instance()->init($cateList, 'parent_id')->icon = ['&nbsp;&nbsp;&nbsp;&nbsp;', '&nbsp;&nbsp;&nbsp;&nbsp;', '&nbsp;&nbsp;&nbsp;&nbsp;'];
     }
 
 

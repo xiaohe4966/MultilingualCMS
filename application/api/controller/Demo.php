@@ -1,9 +1,12 @@
 <?php
+/*
+ * @Author: he4966
+ */
 
 namespace app\api\controller;
 
 use app\common\controller\Api;
-
+use think\Db;
 /**
  * 示例接口
  */
@@ -15,9 +18,9 @@ class Demo extends Api
     //如果接口已经设置无需登录,那也就无需鉴权了
     //
     // 无需登录的接口,*表示全部
-    protected $noNeedLogin = ['test', 'test1'];
+    protected $noNeedLogin = ['test', 'test1','fanyi','cate','update_cate_sha1'];
     // 无需鉴权的接口,*表示全部
-    protected $noNeedRight = ['test2'];
+    protected $noNeedRight = ['*'];
 
     /**
      * 测试方法
@@ -70,4 +73,56 @@ class Demo extends Api
         $this->success('返回成功', ['action' => 'test3']);
     }
 
+    public function fanyi($str=''){
+        $textToTranslate = '你好';
+        if($str)
+            $textToTranslate = $str;
+
+        $fromLang = 'zh';
+        $toLang = 'en';
+
+        // $baiduTranslate = new \fast\BaiduTranslate();
+        // try {
+        //     $translatedText = $baiduTranslate->translate($textToTranslate, $fromLang, $toLang);
+        //     echo "翻译结果：" . $translatedText;
+        // } catch (\Exception $e) {
+        //     echo "发生错误：" . $e->getMessage();
+        // }
+
+
+        $fromLang = 'zh';
+        $toLang = 'ru';
+        echo \fast\Fanyi::fanyi($textToTranslate, $fromLang, $toLang);
+
+    }
+
+
+    public function cate(){
+        (new \app\common\library\LangCom())->updateCate();
+    }
+
+
+
+    protected function getCateSha1($cate)
+    {
+        $fieldsArr = getFanyiTablesFieldsArray('fa_cate');
+        $str = '';
+        foreach ($fieldsArr as $field) {
+            $str .= $cate[$field];
+        }
+        return sha1($str);
+    }
+
+
+    public function update_cate_sha1()
+    {
+        $list = Db::name('cate')->select();
+        foreach ($list as $cate) {
+           
+            $sha1 =  $this->getCateSha1($cate);
+            
+            Db::name('cate')->where('id', $cate['id'])->update(['fanyi_sha1' => $sha1]);
+        
+        }
+    }
 }
