@@ -5,7 +5,8 @@
 use think\exception\HttpResponseException;
 use think\Response;
 use think\Cache;
-
+use think\Config;
+use think\Db;
 
 if (!function_exists('__')) {
 
@@ -649,8 +650,57 @@ if (!function_exists('getWebList')) {
 if (!function_exists('getWebListLangArray')) {
     function getWebListLangArray()
     {
-        $list = \think\Db::name('web')->whereNull('deletetime')->field('lang')->column('lang');
+        $list = \think\Db::name('web')->cache(120)->whereNull('deletetime')->field('lang')->column('lang');
    
         return $list;
     }
 }
+
+/**
+ * 获取需要翻译的字段
+ */
+if (!function_exists('getFanyiTablesFieldsArray')) {
+    function getFanyiTablesFieldsArray($table=null)
+    {
+        $fanyi_fields = \think\Db::name('fanyi_tables')->cache(120)->where('table_name',$table)->value('fanyi_fields');
+        $fanyi_fields = explode(',',$fanyi_fields);
+        return $fanyi_fields;
+    }
+}
+
+
+/**
+ * 翻译
+ * @param string $query 查询内容
+ * @param string $from 自动识别
+ * @param string $to 翻译语言
+ * @return mixed|string
+ */
+if (!function_exists('fanyi')) {
+    function fanyi($query, $from = 'auto', $to = 'zh')
+    {
+
+        return \fast\Fanyi::fanyi($query, $from, $to);
+    }
+}
+
+
+/**
+ * 翻译对应的网站语言
+ * @param string $query 查询内容
+ * @param string $from 自动识别
+ * @param string $to 翻译语言
+ * @return mixed|string
+ */
+if (!function_exists('getFanyiLang')) {
+    function getFanyiLang($lang='')
+    {
+        try {
+            return Db::name('fanyi')->where('lang',$lang)->cache(120)->value(Config::get('site.fanyi_app'));
+        } catch (\Throwable $th) {
+                \think\Log::error('getFanyiLang:' . $th->getMessage() . '行:' . $th->getLine());
+        }
+       
+    }
+}
+
