@@ -631,4 +631,47 @@ trait BackendLangs
         }
         $this->error('未更新任何数据');
     }
+
+
+
+
+
+    /**
+     * 删除非主语言数据
+     *
+     * 
+     * @return void
+     */
+    public function del_other_lang()
+    {
+        try {
+            $LangCom = new \app\common\library\LangCom();
+            $num = $LangCom->delOtherData($this->model->getTable());
+          
+        } catch (\Throwable $th) {
+            $this->error('失败:' . $th->getMessage());
+        }
+        $this->success('删除完成,共删除'.$num.'条数据');
+    }
+
+
+
+
+    /**
+     * 更新非主语言数据
+     *
+     * 
+     * @return void
+     */
+    public function update_other_lang()
+    {
+        try {
+            $LangCom = new \app\common\library\LangCom();
+            $num = $LangCom->delOtherData($this->model->getTable());
+          
+        } catch (\Throwable $th) {
+            $this->error('失败:' . $th->getMessage());
+        }
+        $this->success('删除完成,共删除'.$num.'条数据');
+    }
 }
