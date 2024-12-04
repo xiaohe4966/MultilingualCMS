@@ -1,3 +1,6 @@
+<!--
+ * @Author: he4966
+-->
 <div class="panel panel-default panel-intro">
     
     <div class="panel-heading">
@@ -20,6 +23,9 @@
                         <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('cate/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
                         <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('cate/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('cate/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
+                        
+                        
+                        <a href="javascript:;" class="btn btn-primary btn-ajax {:$auth->check('api/fanyi_all_cate')?'':'hide'}"" title="{:__('fanyi_all_cate')}" data-url="api/fanyi_all_cate"><i class="fa fa-refresh"></i> {:__('fanyi_all_cate')}</a>
                         
 
                         <div class="dropdown btn-group {:$auth->check('cate/multi')?'':'hide'}">

@@ -1,5 +1,9 @@
 <?php
+/*
+ * @Author: he4966
+ */
 return [
+    'fanyi_all_cate'            => '同步翻译全部栏目',
     'Type'         => '类型',
     'Type page'    => '单页',
     'Type link'    => '链接',

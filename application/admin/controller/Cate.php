@@ -5,7 +5,7 @@
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 use fast\Tree;
 use think\Cache;
 use think\Db;
@@ -17,7 +17,7 @@ use think\Config;
  *
  * @icon fa fa-circle-o
  */
-class Cate extends Backend
+class Cate extends BackendLangs
 {
 
     /**
@@ -471,7 +471,7 @@ class Cate extends Backend
                 $where['id'] = ['<>', $id];
             }
             $where['diyname'] = $params['diyname'];
-            $res = Db::name('cate')->where($where)->find();
+            $res = Db::name('cate')->where($where)->where('lang',$this->webLang)->find();
             if ($res) {
                 $this->error('已存在该路由');
             } else {

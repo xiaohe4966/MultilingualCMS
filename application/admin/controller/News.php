@@ -8,14 +8,14 @@
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 use think\Db;
 /**
  * 新闻文章
  *
  * @icon fa fa-circle-o
  */
-class News extends Backend
+class News extends BackendLangs
 {
 
     /**

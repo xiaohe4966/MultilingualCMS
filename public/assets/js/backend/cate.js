@@ -1,4 +1,10 @@
 define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable'], function ($, undefined, Backend, Table, Form, Template, undefined) {
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    var default_lang = getCookie('default_lang');//获取cookie中的默认语言
 
     var Controller = {
         index: function () {
@@ -14,6 +20,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                     table: 'cate',
                 }
             });
+
+
+           
 
             var table = $("#table");
 
@@ -34,70 +43,114 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                 // },
                 columns: [
                     [
-                        {checkbox: true},
-                        {field: 'id', title: __('Id')},
-                        {field: 'name', title: __('Name'), operate: 'LIKE', align: 'left', formatter: Controller.api.formatter.title, clickToSelect: !false},
+                        { checkbox: true },
+                        { field: 'id', title: __('Id') },
+                        { field: 'name', title: __('Name'), operate: 'LIKE', align: 'left', formatter: Controller.api.formatter.title, clickToSelect: !false },
                         // {field: 'byname', title: __('Byname'), operate: 'LIKE'},
-                     
-                        {field: 'type', title: __('Type'), searchList: {"page":__('Type page'),"link":__('Type link'),"list":__('Type list')}, formatter: Table.api.formatter.normal},
+
+                        { field: 'type', title: __('Type'), searchList: { "page": __('Type page'), "link": __('Type link'), "list": __('Type list') }, formatter: Table.api.formatter.normal },
                         // {field: 'model_id', title: __('Model_id')},
-                        {field: 'parent_id', title: __('Parent_id')},
-                        {field: 'image', title: __('Image'), operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image},
-                        {field: 'flag', title: __('Flag'), operate: 'LIKE', formatter: Table.api.formatter.flag},
+                        { field: 'parent_id', title: __('Parent_id') },
+                        { field: 'image', title: __('Image'), operate: false, events: Table.api.events.image, formatter: Table.api.formatter.image },
+                        { field: 'flag', title: __('Flag'), operate: 'LIKE', formatter: Table.api.formatter.flag },
                         // {field: 'seotitle', title: __('Seotitle'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
                         // {field: 'keywords', title: __('Keywords'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
                         // {field: 'description', title: __('Description'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
-                        {field: 'outlink', title: __('Outlink'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
-                        {field: 'items', title: __('Items'), formatter: Controller.api.formatter.newsList},
+                        { field: 'outlink', title: __('Outlink'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content },
+                        { field: 'items', title: __('Items'), formatter: Controller.api.formatter.newsList },
 
-                        {field: 'weigh', title: __('Weigh'), operate: false, editable: true},
+                        { field: 'weigh', title: __('Weigh'), operate: false, editable: true },
                         // {field: 'tpl', title: __('Tpl'), operate: 'LIKE'},
-                        {field: 'listtpl', title: __('Listtpl'), operate: 'LIKE'},
-                        {field: 'showtpl', title: __('Showtpl'), operate: 'LIKE'},
-                        {field: 'pagesize', title: __('Pagesize')},
-                        {field: 'isnav_switch', title: __('Isnav_switch'), searchList: {"1":__('Yes'),"0":__('No')}, table: table, formatter: Table.api.formatter.toggle},
-                        {field: 'status', title: __('Status'), searchList: {"1":__('Status 1'),"2":__('Status 2')}, formatter: Table.api.formatter.status},
-                        {field: 'diyname', title: __('Diyname'), operate: 'LIKE'},
-                        {field: 'table_name', title: __('Table_name'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
-                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
-                        {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate, buttons: [
-                            {
-                                name: 'add',
-                                text: __('add')+"子栏目",
-                                title: function (row) {
-                                    return row.name+"下面添加子栏目";
-                                },
-                                
+                        { field: 'listtpl', title: __('Listtpl'), operate: 'LIKE' },
+                        { field: 'showtpl', title: __('Showtpl'), operate: 'LIKE' },
+                        { field: 'pagesize', title: __('Pagesize') },
+                        { field: 'isnav_switch', title: __('Isnav_switch'), searchList: { "1": __('Yes'), "0": __('No') }, table: table, formatter: Table.api.formatter.toggle },
+
+
+
+                        { field: 'fanyi_switch', title: __('fanyi_switch'), searchList: { "1": __('Yes'), "0": __('No') }, table: table, formatter: Table.api.formatter.toggle ,visible: function (row) {
+                                if (row.lang == default_lang) {
+                                    return false; //隐藏该按钮
+                                } else {
+                                    return true; //显示该按钮
+                                }
+                            }
                         
-                                classname: 'btn btn-xs btn-primary btn-dialog',
-                                icon: 'fa fa-plus',
-                                url: 'cate/add?parent_id={id}',
-                                callback: function (data) {
-                                    Fast.api.close(data);
+                        },
+
+
+                        { field: 'status', title: __('Status'), searchList: { "1": __('Status 1'), "2": __('Status 2') }, formatter: Table.api.formatter.status },
+                        { field: 'diyname', title: __('Diyname'), operate: 'LIKE' },
+                        { field: 'table_name', title: __('Table_name'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content },
+                        { field: 'createtime', title: __('Createtime'), operate: 'RANGE', addclass: 'datetimerange', autocomplete: false, formatter: Table.api.formatter.datetime },
+                        { field: 'updatetime', title: __('Updatetime'), operate: 'RANGE', addclass: 'datetimerange', autocomplete: false, formatter: Table.api.formatter.datetime },
+                        {
+                            field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate, buttons: [
+
+                                {
+                                    name: 'fanyi',
+                                    text: __('fanyi'),
+                                    title: function (row) {
+                                        return __('fanyi');
+                                    },
+
+                                    hidden: function (row) {
+                                        if (row.lang == default_lang) {//支付状态:1=待支付,2=已支付,3=已过期
+                                            return false; //显示该按钮
+                                        } else {
+                                            return true; //隐藏该按钮
+                                        }
+                                    },
+                                    classname: 'btn btn-xs btn-success btn-ajax',
+                                    icon: 'fa fa-language',
+                                    url: 'api/fanyi_cate?ids={id}',
+                                    success: function (data, ret) {
+                                        Layer.msg(ret.msg);
+                                        $(".btn-refresh").trigger("click");
+                                    },
+                                    error: function (err) {
+                                        console.log(err);
+                                    }
+
                                 },
-                                //窗口区域定义
-                                extend: 'data-area=\'["50%", "95%"]\'',
-                                
-                            },
-
-                                
 
 
-             
+                                {
+                                    name: 'add',
+                                    text: __('add') + "子栏目",
+                                    title: function (row) {
+                                        return row.name + "下面添加子栏目";
+                                    },
 
-                            {
-                                name: 'look',
-                                text: '查看页面',
-                                title: function (row) {
-                                    return "查看页面："+row.name;
+
+                                    classname: 'btn btn-xs btn-primary btn-dialog',
+                                    icon: 'fa fa-plus',
+                                    url: 'cate/add?parent_id={id}',
+                                    callback: function (data) {
+                                        Fast.api.close(data);
+                                    },
+                                    //窗口区域定义
+                                    extend: 'data-area=\'["50%", "95%"]\'',
+
                                 },
-                                classname: 'btn btn-xs btn-info btn-addtabs',
-                                icon: 'fa fa-pages',
-                                url: '/{diyname}',
-                            },
-                        
-                        ]
+
+
+
+
+
+
+                                {
+                                    name: 'look',
+                                    text: '查看页面',
+                                    title: function (row) {
+                                        return "查看页面：" + row.name;
+                                    },
+                                    classname: 'btn btn-xs btn-info btn-addtabs',
+                                    icon: 'fa fa-pages',
+                                    url: '/{diyname}',
+                                },
+
+                            ]
                         }
                     ]
                 ]
@@ -112,7 +165,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                     var index = $(this).data("index");
                     var row = Table.api.getrowbyindex(table, index);
                     row.ismenu = $("i.fa.text-gray", this).length > 0 ? 1 : 0;
-                    table.bootstrapTable("updateRow", {index: index, row: row});
+                    table.bootstrapTable("updateRow", { index: index, row: row });
                 } else if ($(this).hasClass("btn-delone")) {
                     if ($(this).closest("tr[data-index]").find("a.btn-node-sub.disabled").length > 0) {
                         $(this).closest("tr[data-index]").remove();
@@ -208,9 +261,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                 sortName: 'id',
                 columns: [
                     [
-                        {checkbox: true},
-                        {field: 'id', title: __('Id')},
-                        {field: 'name', title: __('Name'), align: 'left'},
+                        { checkbox: true },
+                        { field: 'id', title: __('Id') },
+                        { field: 'name', title: __('Name'), align: 'left' },
                         {
                             field: 'deletetime',
                             title: __('Deletetime'),
@@ -253,27 +306,27 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
         },
 
         add: function () {
-            function hide_all(){
+            function hide_all() {
                 $(".div-outlink").hide();
                 $(".div-page").hide();
                 $(".div-list").hide();
             }
-            function page_show(){
+            function page_show() {
                 hide_all();
                 $(".div-page").show();
             }
-            function list_show(){
+            function list_show() {
                 hide_all();
                 $(".div-list").show();
             }
 
-            function link_show(){
+            function link_show() {
                 hide_all();
                 $(".div-link").show();
-                
+
             }
-            function show_div(type){
-                switch(type){
+            function show_div(type) {
+                switch (type) {
                     case 'page':
                         page_show();
                         break;
@@ -285,7 +338,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                         break;
                 }
             }
-            $(document).on("change", "#c-type", function(){
+            $(document).on("change", "#c-type", function () {
                 //变更后的回调事件
                 var type = $(this).val();
                 show_div(type);
@@ -295,30 +348,30 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
             //
             var type = $("#c-type").val();
             show_div(type);
- 
+
         },
         edit: function () {
-            function hide_all(){
+            function hide_all() {
                 $(".div-outlink").hide();
                 $(".div-page").hide();
                 $(".div-list").hide();
             }
-            function page_show(){
+            function page_show() {
                 hide_all();
                 $(".div-page").show();
             }
-            function list_show(){
+            function list_show() {
                 hide_all();
                 $(".div-list").show();
             }
 
-            function link_show(){
+            function link_show() {
                 hide_all();
                 $(".div-link").show();
-                
+
             }
-            function show_div(type){
-                switch(type){
+            function show_div(type) {
+                switch (type) {
                     case 'page':
                         page_show();
                         break;
@@ -330,7 +383,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
                         break;
                 }
             }
-            $(document).on("change", "#c-type", function(){
+            $(document).on("change", "#c-type", function () {
                 //变更后的回调事件
                 var type = $(this).val();
                 show_div(type);
@@ -340,34 +393,34 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template', 'editable
             var type = $("#c-type").val();
             show_div(type);
         },
-        api: { 
+        api: {
             formatter: {
                 newsList: function (value, row, index) {
                     //这里手动构造URL
-                    urlChildren = row.table_name.replace(/fa_/g, '')+"/index?cate_id" + "=" + row.ChildrenIds;
-                    url = row.table_name.replace(/fa_/g, '')+"/index?cate_id" + "=" + row.id;
+                    urlChildren = row.table_name.replace(/fa_/g, '') + "/index?cate_id" + "=" + row.ChildrenIds;
+                    url = row.table_name.replace(/fa_/g, '') + "/index?cate_id" + "=" + row.id;
                     switch (row.type) {
                         case 'page':
                             return '<a href="page/edit?cate_id=' + row.id + '" class="label label-success addtabsit" style="font-size:90%;" title="' + __("编辑单页 %s", row.name) + '">编辑单页</a>';
                             break;
-                    
+
                         default:
                             break;
                     }
 
                     //方式一,直接返回class带有addtabsit的链接,这可以方便自定义显示内容
-                    if(value>0){
-                        if(url==urlChildren)
+                    if (value > 0) {
+                        if (url == urlChildren)
                             return '<a href="' + url + '" class="label label-info addtabsit" style="font-size:90%;" title="' + __("查看列表 %s", row.name) + '">' + value + '</a>';
 
                         return '<a href="' + urlChildren + '" class="label label-info addtabsit" style="font-size:90%;" title="' + __("查看子列表 %s", row.name) + '">子列表</a> <a href="' + url + '" class="label label-info addtabsit" style="font-size:90%;" title="' + __("查看列表 %s", row.name) + '">' + value + '</a>';
-                    }else{
-                        if(url==urlChildren)
+                    } else {
+                        if (url == urlChildren)
                             return '<a href="' + url + '" class="label label-blue addtabsit" style="color:green;font-size:90%;" title="' + __("查看列表 %s", row.name) + '">列表</a>';
 
                         return '<a href="' + urlChildren + '" class="label label-blue addtabsit" style="color:green;font-size:90%;" title="' + __("查看子列表 %s", row.name) + '">子列表</a> <a href="' + url + '" class="label label-blue addtabsit" style="color:green;font-size:90%;" title="' + __("查看列表 %s", row.name) + '">' + value + '</a>';
                     }
-                    
+
 
                     //方式二,直接调用Table.api.formatter.addtabs
                     // this.url = url;

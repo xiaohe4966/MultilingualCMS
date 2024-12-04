@@ -1,15 +1,18 @@
 <?php
+/*
+ * @Author: he4966
+ */
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 
 /**
  * banner图
  *
  * @icon fa fa-circle-o
  */
-class Banner extends Backend
+class Banner extends BackendLangs
 {
 
     /**

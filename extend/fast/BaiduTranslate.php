@@ -5,6 +5,9 @@
 /*
  * @Author: he4966
  */
+/*
+ * @Author: he4966
+ */
 // application/BaiduTranslate.php
 
 namespace fast;
@@ -45,7 +48,7 @@ class BaiduTranslate
             'salt'  => $salt,
             'sign'  => $sign,
         ];
-
+        // halt($params);
      
         try {
             $result = \fast\Http::post($this->apiUrl, $params);
@@ -56,7 +59,7 @@ class BaiduTranslate
                 throw new Exception("翻译失败：" . $result['error_msg']);
             }
         } catch (Exception $e) {
-            throw new Exception("翻译错误：" . $e->getMessage());
+            throw new Exception("翻译错误：" . $e->getMessage().json_encode($params,JSON_UNESCAPED_UNICODE));
         }
     }
 }

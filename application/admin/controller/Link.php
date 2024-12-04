@@ -2,17 +2,20 @@
 /*
  * @Author: he4966
  */
+/*
+ * @Author: he4966
+ */
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 
 /**
  * 友情链接
  *
  * @icon fa fa-link
  */
-class Link extends Backend
+class Link extends BackendLangs
 {
 
     /**

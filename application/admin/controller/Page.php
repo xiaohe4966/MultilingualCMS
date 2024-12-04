@@ -2,14 +2,14 @@
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 use think\Db;
 /**
  * 单页管理
  *
  * @icon fa fa-circle-o
  */
-class Page extends Backend
+class Page extends BackendLangs
 {
 
     /**

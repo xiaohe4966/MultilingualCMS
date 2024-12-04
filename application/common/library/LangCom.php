@@ -16,8 +16,10 @@ use fast\Tree;
  */
 class LangCom
 {
-
+    use \traits\controller\Jump;
     public $cateList;
+
+    public static $insertNum = 0;
     /**
      * 更新栏目
      */
@@ -53,27 +55,33 @@ class LangCom
     }
 
 
-    public function editCate($id = null)
+    public function fanyiCate($id = null)
     {
+        $num = 0;
         $cate = Db::table('fa_cate')->where('id', $id)->find();
 
         if ($cate) {
-
             $default_lang = config('default_lang');
-            if ($default_lang == $cate['lang']) {//如果修改的是默认语言就需要同步修改多语言栏目
-                $list = Db::table('fa_cate')->where('copy_id', $id)->select(); //多语言列表栏目
-                if ($this->getCateSha1($cate) != $cate['fanyi_sha1']) {
-    
-                    foreach ($list as $row) {
-                        $this->手动保存栏目($row, $cate['lang'],1);
-                    }
-                }
-            }else{
-                // ???????
+            if ($cate['lang'] != $default_lang) {
+                $this->error('非默认语言，不支持自动翻译');
             }
 
 
+            $list = Db::table('fa_cate')->where('copy_id', $id)->select(); //多语言列表栏目
 
+            if ($this->getCateSha1($cate) != $cate['fanyi_sha1']) {
+
+                foreach ($list as $row) {
+                    $res = $this->翻译保存栏目($row, $cate);
+                    if ($res) {
+                        $num++;
+                    }
+                }
+                return $num;
+            } else {
+                $this->error('栏目内容未修改，无需翻译');
+                // throw new \Exception("栏目内容未修改，无需翻译", -1);
+            }
         }
     }
 
@@ -112,39 +120,51 @@ class LangCom
 
             $cateNew['fanyi_time'] = time();
             $cateNew['fanyi_num'] = 1;
-            $cateNew['fanyi_sha1'] = $this->getCateSha1($$cateNew);
-            Db::name('cate')->insert($cateNew);
+            $cateNew['fanyi_sha1'] = $this->getCateSha1($cateNew);
+            $insert_res = Db::name('cate')->insert($cateNew);
+            if ($insert_res) {
+                self::$insertNum++;
+            }
         }
     }
 
 
 
 
-    protected function 手动保存栏目($cate, $lang, $fanyi_switch = 1)
+    /**
+     * 手动保存栏目
+     * @param array $cate 新栏目数据
+     * @param string $cate 原来栏目
+     * @param int $fanyi_switch 1=自动翻译,0=手动翻译
+     * @return mixed
+     */
+    protected function 翻译保存栏目($cateNew, $Oldcate)
     {
-        $cateNew = $cate;
-        unset($cateNew['id']);
-        $cateNew['lang'] = $lang;
-        $cateNew['copy_id'] = $cate['id'];
-        $res = Db::name('cate')->where('lang', $lang)->where('copy_id', $cate['id'])->find();
-        if (!$res) {
-            $cateNew['parent_id'] = $this->getLangParentId($cate['parent_id'], $lang);
+        $fanyi_switch = $cateNew['fanyi_switch'];
+        if ($fanyi_switch == 1) {
 
-            $cateNew = $this->FanyiCateContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
-            $cateNew['fanyi_time'] = time();
-            $cateNew['fanyi_num'] = 1;
-            $cateNew['fanyi_sha1'] = $this->getCateSha1($$cateNew);
-            Db::name('cate')->insert($cateNew);
-        } else {
-            if ($fanyi_switch == 1) {
-                $cateNew = $this->FanyiCateContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
-                $cateNew['fanyi_time'] = time();
-                $cateNew['fanyi_num'] += 1;
-            } else {
-                unset($cateNew['fanyi_time']);
-                unset($cateNew['fanyi_num']);
-            }
-            Db::name('cate')->where('lang', $lang)->where('copy_id', $cate['id'])->update($cateNew);
+            $new_cate_id = $cateNew['id'];
+            // unset($cateNew['id']);
+            // $cateNew['copy_id'] = $cate['id'];
+            // $res = Db::name('cate')->where('lang', $lang)->where('copy_id', $cate['id'])->find();
+            // if (!$res) {
+            //     $cateNew['parent_id'] = $this->getLangParentId($cate['parent_id'], $lang);
+
+            //     $cateNew = $this->FanyiCateContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
+            //     $cateNew['fanyi_time'] = time();
+            //     $cateNew['fanyi_num'] = 1;
+            //     $cateNew['fanyi_sha1'] = $this->getCateSha1($cateNew);
+            //     Db::name('cate')->insert($cateNew);
+            // } else {
+            // halt($cate);
+
+            $update_cate = $this->主栏目到其他语言($Oldcate, $cateNew['lang'], 'fa_cate'); //自动翻译栏目内容
+            $update_cateNew['fanyi_time'] = time();
+            $update_cateNew['fanyi_num'] = $cateNew['fanyi_num'] + 1;
+            return Db::name('cate')->where('id', $new_cate_id)->update($update_cate);
+   
+
+            // }
         }
     }
 
@@ -159,12 +179,33 @@ class LangCom
     {
         $fieldsArr = getFanyiTablesFieldsArray('fa_cate'); //获取需要翻译的字段[]
         foreach ($fieldsArr as $field) {
+            // halt($cateNew);
+            // halt(getFanyiLang($cateNew['lang']));
             //循环翻译需要的字段  如果长度大于0 就翻译
-            $cateNew[$field] = strlen($cateNew[$field]) > 0 ? fanyi($cateNew[$field], 'auto', getFanyiLang($lang)) : null;
+            $cateNew[$field] = strlen($cateNew[$field]) > 0 ? fanyi($cateNew[$field], 'auto', getFanyiLang($cateNew['lang'])) : null;
         }
         return $cateNew;
     }
 
+    /**
+     * 点击翻译栏目内容
+     * @param array $cateNew 栏目数据
+     * @param string $lang 翻译语言
+     * @param string $table_name
+     * @return mixed
+     */
+    public function 主栏目到其他语言($cate, $lang, $table_name = 'fa_cate')
+    {
+        $fieldsArr = getFanyiTablesFieldsArray($table_name); //获取需要翻译的字段[]
+        $cateNew = [];
+        foreach ($fieldsArr as $field) {
+            // halt($cate);
+            // halt(getFanyiLang($cate['lang']));
+            //循环翻译需要的字段  如果长度大于0 就翻译
+            $cateNew[$field] = strlen($cate[$field]) > 0 ? fanyi($cate[$field], 'auto', getFanyiLang($lang)) : null;
+        }
+        return $cateNew;
+    }
 
     protected function getLangParentId($id, $lang)
     {

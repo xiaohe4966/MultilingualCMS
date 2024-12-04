@@ -65,7 +65,6 @@ trait Backend
         }
         [$where, $sort, $order, $offset, $limit] = $this->buildparams();
         $list = $this->model
-            ->where('lang', $this->webLang)
             ->where($where)
             ->order($sort, $order)
             ->paginate($limit);
@@ -125,7 +124,6 @@ trait Backend
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
                 $this->model->validateFailException()->validate($validate);
             }
-            $params['lang'] = $this->webLang;
             $result = $this->model->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException | PDOException | Exception $e) {
@@ -174,7 +172,6 @@ trait Backend
                 $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
                 $row->validateFailException()->validate($validate);
             }
-            $params['lang'] = $this->webLang;
             $result = $row->allowField(true)->save($params);
             Db::commit();
         } catch (ValidateException | PDOException | Exception $e) {

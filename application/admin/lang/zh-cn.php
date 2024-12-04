@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'fanyi'                                                 => '翻译',
+    'fanyi_switch'                                          => '自动翻译',
     'Field'                                                 => '修改字段',
     'Multiedit'                                             => '批量编辑',
     'multiedit_ids'                                         => '选择ID',

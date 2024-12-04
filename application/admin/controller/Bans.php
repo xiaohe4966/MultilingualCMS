@@ -5,7 +5,7 @@
 
 namespace app\admin\controller;
 
-use app\common\controller\Backend;
+use app\common\controller\BackendLangs;
 use think\Db;
 
 /**
@@ -13,7 +13,7 @@ use think\Db;
  *
  * @icon fa fa-circle-o
  */
-class Bans extends Backend
+class Bans extends BackendLangs
 {
 
     /**
