@@ -40,6 +40,8 @@ class Frontend extends Controller
      */
     protected $auth = null;
 
+    protected $lang;
+
     public function _initialize()
     {
         //移除HTML标签
@@ -90,6 +92,8 @@ class Frontend extends Controller
         // 语言检测
         $lang = $this->request->langset();
         $lang = preg_match("/^([a-zA-Z\-_]{2,10})\$/i", $lang) ? $lang : 'zh-cn';
+
+        $this->lang = getDomainLang();
 
         $site = Config::get("site");
 

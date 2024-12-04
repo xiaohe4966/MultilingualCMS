@@ -52,6 +52,7 @@ class Page extends Backend
 
             $list = $this->model
                     ->with(['cate'])
+                    ->where('page.lang', $this->webLang)
                     ->where($where)
                     ->order($sort, $order)
                     ->paginate($limit);
@@ -90,6 +91,8 @@ class Page extends Backend
                 }    
                 $insert['cate_id'] = $cate_id;
                 $insert['title'] = $cate['name'];
+                $insert['lang'] = $this->webLang;
+
                 $insert['createtime'] = time();
                 $ids = Db::name('page')->insertGetId($insert);
             }else{

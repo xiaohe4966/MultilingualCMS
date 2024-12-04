@@ -74,21 +74,14 @@ if(!is_file($installLockFile)){
 
 
 //加入多语言路由
-$weblist = getWebList();
+$getWebListLangArray = getWebListLangArray();
 
-foreach ($weblist as $key => $web) {
-    // Route::domain($web['lang'],'?lang='.$web['lang']);
-    // Route::domain($web['lang'], '?lang='.$web['lang']);
-
-    Route::domain($web['lang'],'', ['lang' => $web['lang']]);
-    
+foreach ($getWebListLangArray as $lang) {
+    Route::domain($lang,'', ['lang' => $lang]);
 }
-
-// Route::domain('*', 'cms?lang=*');
-
 Route::any('/sitemap.xml','cms/index/sitemap');
 
-
+$lang = getDomainLang();
 
 
 
@@ -99,7 +92,7 @@ Route::any('/sitemap.xml','cms/index/sitemap');
 if(Config::get('site.route_switch'))// 兼容自定义路由，如果需要后台路由开关控制，请取消注释此行   TpMeCms
     Route::any('/index','cms/index/index');//可以自行更改cms首页路由
 
-    foreach(Db::name('cate')->select() as $key=>$val){
+    foreach(Db::name('cate')->where('lang',$lang)->select() as $key=>$val){
 
         switch ($val['type']) {
             case 'page':

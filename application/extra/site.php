@@ -66,7 +66,7 @@ return array (
   'gbook_email' => 'you_email@qq.com',
   'gbook_to_email_switch' => '1',
   'gbook_captcha_switch' => '1',
-  'cms_seo_switch' => '0',
+  'cms_seo_switch' => '1',
   'config_group_show' => 'basic|cms|gbook',
   'config_field_hide' => 'version|timezone|forbiddenip|languages',
   'head_code' => NULL,

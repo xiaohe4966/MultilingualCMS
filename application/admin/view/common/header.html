@@ -29,7 +29,7 @@
                 </li>
 
                 <li class="hidden-xs">
-                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">我要管理<i class="fa fa-language"></i></a>
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"> {volist name="lang_list" id="v"} {if $v['lang']==$webLang}{$v.name}{/if}{/volist}<i class="fa fa-language"></i></a>
                     <ul class="dropdown-menu">
                         {volist name="lang_list" id="v"}
                         <li class="{$v['lang']==$webLang?'active':''}">

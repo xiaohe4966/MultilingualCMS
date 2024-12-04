@@ -58,6 +58,7 @@ class News extends Backend
 
             $list = $this->model
                 ->with(['cate'])
+                ->where('news.lang', $this->webLang)
                 ->where($where)
                 ->order($sort, $order)
                 ->paginate($limit);
@@ -89,6 +90,7 @@ class News extends Backend
         }
         unset($row->id);
         try {
+            $row->lang = $this->webLang;
             $result = $this->model->allowField(true)->save($row->toArray());
         } catch (ValidateException | PDOException | Exception $e) {
             $this->error($e->getMessage());
@@ -115,7 +117,7 @@ class News extends Backend
         }
 
         $pk = $this->model->getPk();
-        $list = $this->model->where($pk, 'in', $ids)->select();
+        $list = $this->model->where($pk, 'in', $ids)->where('lang', $this->webLang)->select();
         $count = 0;
         Db::startTrans();
         try {

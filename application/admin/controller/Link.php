@@ -1,4 +1,7 @@
 <?php
+/*
+ * @Author: he4966
+ */
 
 namespace app\admin\controller;
 
@@ -51,7 +54,7 @@ class Link extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
             $list = $this->model
-                    
+                    ->where('lang', $this->webLang)
                     ->where($where)
                     ->order($sort, $order)
                     ->paginate($limit);

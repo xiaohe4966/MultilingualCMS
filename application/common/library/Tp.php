@@ -79,10 +79,10 @@ class Tp extends TagLib {
         $name         = isset($tag['name'])  ? $tag['name']  : 'nav';
 
         if(!empty($tag['id'])){
-            $catestr = '$__CATE__ = \think\Db::name(\'cate\')->where(\'is_menu\',1)->order(\'weigh DESC,id DESC\')->select();';
+            $catestr = '$__CATE__ = \think\Db::name(\'cate\')->where(\'lang\',"'.getDomainLang().'")->where(\'is_menu\',1)->order(\'weigh DESC,id DESC\')->select();';
             $catestr.= '$__LIST__ = getChildsOn($__CATE__,'.$tag['id'].');';
         }else{
-            $catestr = '$__CATE__ = \think\Db::name(\'cate\')->where(\'is_menu\',1)->order(\'weigh DESC,id DESC\')->select();';
+            $catestr = '$__CATE__ = \think\Db::name(\'cate\')->where(\'lang\',"'.getDomainLang().'")->where(\'is_menu\',1)->order(\'weigh DESC,id DESC\')->select();';
             $catestr.= '$__LIST__ = unlimitedForLayer($__CATE__);';
         }
         //提取前N条数据,因为sql的LIMIT避免不了子栏目的问题
@@ -121,7 +121,7 @@ class Tp extends TagLib {
         $cate_id   = isset($tag['cate_id'])?$tag['cate_id']:"input('cate_id')";
         $parse  = '<?php ';
 
-        $parse .= '$__CATE_LIST__ = \think\Db::name(\'cate\')->select();
+        $parse .= '$__CATE_LIST__ = \think\Db::name(\'cate\')->where(\'lang\',"'.getDomainLang().'")->select();
         $tree = \fast\Tree::instance()->init($__CATE_LIST__,\'parent_id\');
         $__LIST__ = $tree->getParents('.$cate_id.',true);';
         $parse .= ' ?>';
@@ -137,7 +137,7 @@ class Tp extends TagLib {
         $name = isset($tag['name']) ? $tag['name'] : 'link';
         $limit = isset($tag['limit']) ? $tag['limit'] : 9999;
         $parse  = '<?php ';
-        $parse .= '$__LIST__ = \think\Db::name(\'link\')->where(\'switch\',1)->order(\'weigh DESC,id desc\')->limit('.$limit.')->select();';
+        $parse .= '$__LIST__ = \think\Db::name(\'link\')->where(\'lang\',"'.getDomainLang().'")->where(\'switch\',1)->order(\'weigh DESC,id desc\')->limit('.$limit.')->select();';
         $parse .= ' ?>';
         $parse .= '{volist name="__LIST__" id="' . $name . '"}';
         $parse .= $content;
@@ -194,7 +194,10 @@ class Tp extends TagLib {
         $where = isset($tag['where']) ?  $tag['where'].' AND switch = 1 ' : 'switch = 1'; //查询条件
         $pagesize = isset($tag['pagesize']) ?  $tag['pagesize']   : config('page_size');
         //paginate(1,false,['query' => request()->param()]); //用于传递所有参数，目前只需要page参数
-        $__CATE__ = Db::name('cate')->find($id);
+        $__CATE__ = Db::name('cate')->where('lang',getDomainLang())->find($id);
+        if(!$__CATE__){
+            $__CATE__ = Db::name('cate')->where('lang',getDomainLang())->where('copy_id',$id)->find();
+        }
         $parse  = '<?php ';
         $parse .='
         //查找栏目对应的表信息
@@ -203,7 +206,7 @@ class Tp extends TagLib {
         //获取表名称    
         $__TABLENAME_ = $__TABLE_[\'table_name\'];
         //栏目列表
-        $__CATE_LIST__ = \think\Db::name(\'cate\')->field(\'name,id,parent_id\')->select();
+        $__CATE_LIST__ = \think\Db::name(\'cate\')->where(\'lang\',"'.getDomainLang().'")->field(\'name,id,parent_id\')->select();
         $tree = \fast\Tree::instance()->init($__CATE_LIST__,\'parent_id\');
         $__CATE_IDS__ = $tree->getChildrenIds('.$id.',true);//获取id栏目下的子栏目id,第二个参数是否包含自己
 
@@ -213,6 +216,7 @@ class Tp extends TagLib {
             if('.$limit.'!=0){
                 $__LIST__ = \think\Db::table($__TABLENAME_)
                 ->order(\''.$order.'\')
+                ->where(\'lang\',"'.getDomainLang().'")
                 ->limit(\''.$limit.'\')
                 ->page(\''.$page.'\')
                 ->where(" '.$where.'")
@@ -224,6 +228,7 @@ class Tp extends TagLib {
                 $__TABLE_[\'pagesize\'] = empty($__TABLE_[\'pagesize\'])?'.$pagesize.':$__TABLE_[\'pagesize\'];
                 $__LIST__ = \think\Db::table($__TABLENAME_)
                 ->order(\''.$order.'\')
+                ->where(\'lang\',"'.getDomainLang().'")
                 // ->limit(\''.$limit.'\')
                 ->page(\''.$page.'\')
                 ->where(" '.$where.'")
@@ -260,7 +265,7 @@ class Tp extends TagLib {
 
         $parse  = '<?php ';
         $parse .='
-                $__MODULEID__ = \think\Db::name("module")->where("name","'.$table.'")->value("id");
+                $__MODULEID__ = \think\Db::name("module")->where(\'lang\',"'.getDomainLang().'")->where("name","'.$table.'")->value("id");
                 $__LIST__ = \think\Db::name("'.$table.'")
                 ->order("'.$order.'")
                 ->where("'.$where.'")
@@ -286,6 +291,7 @@ class Tp extends TagLib {
         $str .= '
                 //查找表名称
                 $__TABLENAME__ = \think\Db::name(\'cate\')
+                    ->where(\'lang\',"'.getDomainLang().'")
                     ->alias(\'c\')
                     ->leftJoin(\'module m\',\'c.moduleid = m.id\')
                     ->field(\'m.name as table_name\')
@@ -294,6 +300,7 @@ class Tp extends TagLib {
                 //根据ID查找上一篇的信息
                 $__PREV__ = \think\Db::name($__TABLENAME__[\'table_name\'])
                     ->where(\'catid\',input(\'catId\'))
+                    ->where(\'lang\',"'.getDomainLang().'")
                     ->where(\'id\',\'<\',input(\'id\'))
                     ->field(\'id,catid,title\')
                     ->order(\'weigh DESC,id DESC\')
@@ -319,6 +326,7 @@ class Tp extends TagLib {
         $str .= '
                 //查找表名称
                 $__TABLENAME__ = \think\Db::name(\'cate\')
+                    ->where(\'lang\',"'.getDomainLang().'")
                     ->alias(\'c\')
                     ->leftJoin(\'module m\',\'c.moduleid = m.id\')
                     ->field(\'m.name as table_name\')
@@ -326,6 +334,7 @@ class Tp extends TagLib {
                     ->find();
                 //根据ID查找下一篇的信息
                 $__PREV__ = \think\Db::name($__TABLENAME__[\'table_name\'])
+                    ->where(\'lang\',"'.getDomainLang().'")
                     ->where(\'catid\',input(\'catId\'))
                     ->where(\'id\',\'>\',input(\'id\'))
                     ->field(\'id,catid,title\')
@@ -352,8 +361,8 @@ class Tp extends TagLib {
         $type = $tag['type']?$tag['type']:'catname';
 
         $str = '<?php ';
-        $str .= '$__PAGE__=\think\Db::name("page")->where("cate_id",'.$id.')->find();';
-        $str .= '$__CATE__=\think\Db::name("cate")->where("id",'.$id.')->find();';
+        $str .= '$__PAGE__=\think\Db::name("page")->where(\'lang\',"'.getDomainLang().'")->where("cate_id",'.$id.')->find();';
+        $str .= '$__CATE__=\think\Db::name("cate")->where(\'lang\',"'.getDomainLang().'")->where("id",'.$id.')->find();';
         $str .= 'if(is_array($__PAGE__)){ ';
         $str .= '$__PAGE__[\'url\']=getCateUrl($__CATE__);';
         $str .= '$__PAGE__[\'tag\']='.$id.';';

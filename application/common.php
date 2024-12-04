@@ -173,10 +173,12 @@ if (!function_exists('copydirs')) {
         if (!is_dir($dest)) {
             mkdir($dest, 0755, true);
         }
-        foreach ($iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        ) as $item) {
+        foreach (
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            ) as $item
+        ) {
             if ($item->isDir()) {
                 $sontDir = $dest . DS . $iterator->getSubPathName();
                 if (!is_dir($sontDir)) {
@@ -514,12 +516,12 @@ if (!function_exists('getCateUrl')) {
     function getCateUrl($v)
     {
         //判断是否直接跳转
-        if ($v['type']== 'link') {
+        if ($v['type'] == 'link') {
             $v['url'] = trim($v['outlink']);
         } else {
-            if(config('site.route_switch')){
+            if (config('site.route_switch')) {
                 $v['url'] = '/' . $v['diyname'];
-            }else{
+            } else {
                 $v['url'] = '/cms/index/cate?id=' . $v['id'];
             }
             //判断是否跳转到下级栏目
@@ -639,7 +641,7 @@ if (!function_exists('bans')) {
 if (!function_exists('getWebList')) {
     function getWebList()
     {
-        $list = \think\Db::name('web')->whereNull('deletetime')->field('deletetime',true)->select();
+        $list = \think\Db::name('web')->whereNull('deletetime')->field('deletetime', true)->select();
         return $list;
     }
 }
@@ -651,19 +653,39 @@ if (!function_exists('getWebListLangArray')) {
     function getWebListLangArray()
     {
         $list = \think\Db::name('web')->cache(120)->whereNull('deletetime')->field('lang')->column('lang');
-   
+
         return $list;
     }
 }
 
 /**
+ * 获取当前语言
+ */
+if (!function_exists('getDomainLang')) {
+    function getDomainLang()
+    {
+        //获取当前域名的前缀
+        $host = request()->host();
+
+        // 获取域名前缀（二级域名）
+        $domainPrefix = substr($host, 0, strpos($host, '.'));
+
+        if (in_array($domainPrefix, getWebListLangArray())) {
+            $lang = $domainPrefix;
+        } else {
+            $lang = config('default_lang');
+        }
+        return $lang;
+    }
+}
+/**
  * 获取需要翻译的字段
  */
 if (!function_exists('getFanyiTablesFieldsArray')) {
-    function getFanyiTablesFieldsArray($table=null)
+    function getFanyiTablesFieldsArray($table = null)
     {
-        $fanyi_fields = \think\Db::name('fanyi_tables')->cache(120)->where('table_name',$table)->value('fanyi_fields');
-        $fanyi_fields = explode(',',$fanyi_fields);
+        $fanyi_fields = \think\Db::name('fanyi_tables')->cache(120)->where('table_name', $table)->value('fanyi_fields');
+        $fanyi_fields = explode(',', $fanyi_fields);
         return $fanyi_fields;
     }
 }
@@ -693,14 +715,12 @@ if (!function_exists('fanyi')) {
  * @return mixed|string
  */
 if (!function_exists('getFanyiLang')) {
-    function getFanyiLang($lang='')
+    function getFanyiLang($lang = '')
     {
         try {
-            return Db::name('fanyi')->where('lang',$lang)->cache(120)->value(Config::get('site.fanyi_app'));
+            return Db::name('fanyi')->where('lang', $lang)->cache(120)->value(Config::get('site.fanyi_app'));
         } catch (\Throwable $th) {
-                \think\Log::error('getFanyiLang:' . $th->getMessage() . '行:' . $th->getLine());
+            \think\Log::error('getFanyiLang:' . $th->getMessage() . '行:' . $th->getLine());
         }
-       
     }
 }
-

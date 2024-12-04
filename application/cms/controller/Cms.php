@@ -1,5 +1,5 @@
 <?php
-                                                                                                                                                                                                                                                                                                                                        
+
 // TTTTTTTTTTTTTTTTTTTTTTT                  MMMMMMMM               MMMMMMMM                                CCCCCCCCCCCCMMMMMMMM               MMMMMMMM  SSSSSSSSSSSSSSS 
 // T:::::::::::::::::::::T                  M:::::::M             M:::::::M                             CCC::::::::::::M:::::::M             M:::::::MSS:::::::::::::::S
 // T:::::::::::::::::::::T                  M::::::::M           M::::::::M                           CC:::::::::::::::M::::::::M           M::::::::S:::::SSSSSS::::::S
@@ -22,7 +22,7 @@
 //                       p:::::::p                                                                                                                                      
 //                       p:::::::p                                                                                                                                      
 //                       ppppppppp                                                                                                                                      
-                                                                                                                                                                     
+
 //  _____      __  __         ____ __  __ ____  
 // |_   __ __ |  \/  | ___   / ___|  \/  / ___|     | AUTHOR: Xiaohe
 //   | || '_ \| |\/| |/ _ \ | |   | |\/| \___ \     | EMAIL: 496631085@qq.com
@@ -46,17 +46,17 @@ class Cms extends Frontend
     protected $noNeedRight = '*';
 
     static public $nav;
-
+    protected $lang;
 
     public function _initialize()
     {
         parent::_initialize();
         self::$nav = $this->get_nav_list();
-        $this->view->assign('nav', self::$nav);//导航栏
-        if($this->auth->id){    //页面加入用户信息
-            $this->view->assign('user', $this->auth->getUserinfo());//用户
+        $this->view->assign('nav', self::$nav); //导航栏
+        if ($this->auth->id) {    //页面加入用户信息
+            $this->view->assign('user', $this->auth->getUserinfo()); //用户
         }
-        
+    //   halt($this->request);
     }
 
     /**
@@ -77,31 +77,32 @@ class Cms extends Frontend
      * @param integer $pid 上级的id（默认为0全部
      * @return void
      */
-    protected function get_nav_list($pid = 0,$limit=15)
+    protected function get_nav_list($pid = 0, $limit = 15)
     {
         $nav_list = Db::name('cate')
-            ->where('isnav_switch',1)
-            ->where('status','1')
+            ->where('lang', $this->lang)
+            ->where('isnav_switch', 1)
+            ->where('status', '1')
             ->order('weigh desc')
             ->select();
 
         $nav_list_ids = Db::name('cate')
-            ->where('isnav_switch',1)
-            ->where('status','1')
+            ->where('lang', $this->lang)
+            ->where('isnav_switch', 1)
+            ->where('status', '1')
             ->order('weigh desc')
-            ->column('parent_id,name','id');
+            ->column('parent_id,name', 'id');
 
-        foreach($nav_list as &$val){
+        foreach ($nav_list as &$val) {
 
-            if(empty($val['outlink'])){
+            if (empty($val['outlink'])) {
                 //加入路由开关
-                if(Config::get('site.route_switch')){
-                    $val['url'] = '/'.$val['diyname'];
-                }else{
-                    $val['url'] = '/cms/index/cate/id/'.$val['id'];
+                if (Config::get('site.route_switch')) {
+                    $val['url'] = '/' . $val['diyname'];
+                } else {
+                    $val['url'] = '/cms/index/cate/id/' . $val['id'];
                 }
-                
-            }else{
+            } else {
                 $val['url'] = $val['outlink'];
             }
         }
@@ -111,8 +112,7 @@ class Cms extends Frontend
         $Tree->init($nav_list, 'parent_id');
         $list = $Tree->getTreeArray($pid, 'parent');
 
-        
-        
+
         return $list;
     }
 
@@ -125,17 +125,18 @@ class Cms extends Frontend
      */
     public function get_cate_data($id)
     {
-        $cate = Db::name('cate')->find($id);
-        if(!$cate){
+        $cate = Db::name('cate')->where('lang', $this->lang)->find($id);
+        if (!$cate) {
             $this->error('没有该栏目');
-        } 
+        }
 
         $nav_list_ids = Db::name('cate')
-            ->where('isnav_switch',1)
-            ->where('status','1')
+            ->where('lang', $this->lang)
+            ->where('isnav_switch', 1)
+            ->where('status', '1')
             ->order('weigh desc')
-            ->column('parent_id,name','id');
-        $cate['is_top'] = $this->getCateTop($cate);//顶级栏目id
+            ->column('parent_id,name', 'id');
+        $cate['is_top'] = $this->getCateTop($cate); //顶级栏目id
         return $cate;
     }
 
@@ -148,10 +149,10 @@ class Cms extends Frontend
      */
     public function getCateTop($cate)
     {
-        if($cate['parent_id']>0){
-            $p_cate = Db::name('cate')->find($cate['parent_id']);
+        if ($cate['parent_id'] > 0) {
+            $p_cate = Db::name('cate')->where('lang', $this->lang)->find($cate['parent_id']);
             return $this->getCateTop($p_cate);
-        }else{
+        } else {
             return $cate['id'];
         }
     }
@@ -166,27 +167,28 @@ class Cms extends Frontend
      * @param string $sort 排序{升(asc)降(desc)}
      * @return void
      */
-    public function get_cate_art_list($id=null,$page=1,$limit=null,$field='weigh',$sort='desc')
+    public function get_cate_art_list($id = null, $page = 1, $limit = null, $field = 'weigh', $sort = 'desc')
     {
         $where = null;
-        if($id){
-            $where['id'] = ['=',$id];
+        if ($id) {
+            $where['id'] = ['=', $id];
 
-            if(!$limit){
+            if (!$limit) {
                 $pagesize = $this->get_cate_data($id)['pagesize'];
-                $limit = $pagesize?$pagesize:10;
+                $limit = $pagesize ? $pagesize : 10;
             }
-        }else{
-            if(!$limit)
+        } else {
+            if (!$limit)
                 $limit = 10;
         }
-        
+
         $list = Db::name('article')
+            ->where('lang', $this->lang)
             ->where($where)
-            ->page($page,$limit)//翻页及数量
-            ->order($field.' '.$sort)//排序
+            ->page($page, $limit) //翻页及数量
+            ->order($field . ' ' . $sort) //排序
             ->select();
-       
+
         return $list;
     }
 
@@ -202,8 +204,9 @@ class Cms extends Frontend
     public function get_page_data($cate)
     {
         return  Db::name('page')
-            ->where('cate_id',$cate['id'])
-            ->find();        
+            ->where('lang', $this->lang)
+            ->where('cate_id', $cate['id'])
+            ->find();
     }
 
     /**
@@ -216,71 +219,73 @@ class Cms extends Frontend
      * @param string $sort 排序{升(asc)降(desc)}
      * @return void
      */
-    public function get_cate_art_list2($cate,$page=1,$field='weigh',$sort='desc')
+    public function get_cate_art_list2($cate, $page = 1, $field = 'weigh', $sort = 'desc')
     {
-        $where['switch'] = 1;//需要状态为1才显示
+        $where['switch'] = 1; //需要状态为1才显示
 
         //获取栏目下的子栏目id
-        $__CATE_LIST__ = \think\Db::name('cate')->field('name,id,parent_id')->select();
-        $tree = \fast\Tree::instance()->init($__CATE_LIST__,'parent_id');
-        $__CATE_IDS__ = $tree->getChildrenIds($cate['id'],true);//获取id栏目下的子栏目id,第二个参数是否包含自己
-        $where['cate_id'] = [ 'in', $__CATE_IDS__];
+        $__CATE_LIST__ = \think\Db::name('cate')->where('lang', $this->lang)->field('name,id,parent_id')->select();
+        $tree = \fast\Tree::instance()->init($__CATE_LIST__, 'parent_id');
+        $__CATE_IDS__ = $tree->getChildrenIds($cate['id'], true); //获取id栏目下的子栏目id,第二个参数是否包含自己
+        $where['cate_id'] = ['in', $__CATE_IDS__];
 
         //可以直接get或post提交各种参数自行添加条件
         $params = $this->request->param();
-        if(isset($params['tag'])){
-            $where['tags'] = ['like',"%".$params['tag']."%"];
+        if (isset($params['tag'])) {
+            $where['tags'] = ['like', "%" . $params['tag'] . "%"];
         }
 
-        if(isset($params['search']) && !empty($params['search'])){
-            $where['title|content|seotitle|keywords|description|memo'] = ['like',"%".$params['search']."%"];
-            unset($where['cate_id']);//如果搜索当前栏目下的列表就注释该代码
+        if (isset($params['search']) && !empty($params['search'])) {
+            $where['title|content|seotitle|keywords|description|memo'] = ['like', "%" . $params['search'] . "%"];
+            unset($where['cate_id']); //如果搜索当前栏目下的列表就注释该代码
         }
 
 
         //例如前段直接传page参数
-        if(isset($params['page'])){
+        if (isset($params['page'])) {
             $page = intval($params['page']);
         }
 
         //如果这个表里面有这个字段(兼容其他表判断)
-        $is_cate_id = Db::query("Describe ".$cate['table_name']." cate_id");
-        if(!$is_cate_id){
+        $is_cate_id = Db::query("Describe " . $cate['table_name'] . " cate_id");
+        if (!$is_cate_id) {
             unset($where['cate_id']);
         }
 
         //如果这个表里面有这个字段(兼容其他表判断)
-        $is_deletetime = Db::query("Describe ".$cate['table_name']." deletetime");
-        if($is_deletetime){
-            $where['deletetime'] = NULL;//如果删除，但没有被真是删除（在回收站），就不显示
+        $is_deletetime = Db::query("Describe " . $cate['table_name'] . " deletetime");
+        if ($is_deletetime) {
+            $where['deletetime'] = NULL; //如果删除，但没有被真是删除（在回收站），就不显示
         }
-            
-        
-      
-        $limit = $cate['pagesize'];//分页数量
-        try{
+
+
+
+        $limit = $cate['pagesize']; //分页数量
+        try {
             $list = Db::table($cate['table_name'])
-                    ->where($where)
-                    ->order($field.' '.$sort. ',id desc')//排序
-                    ->page($page,$limit)
-                    ->limit($limit)
-                    ->select();
-        }catch(\Exception $e){
-            Log::error($e->getMessage().'table:'.$cate['table_name'].json_encode($where,JSON_UNESCAPED_UNICODE));
-            if(config('app_debug')){
+                ->where($where)
+                ->where('lang', $this->lang)
+                ->order($field . ' ' . $sort . ',id desc') //排序
+                ->page($page, $limit)
+                ->limit($limit)
+                ->select();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage() . 'table:' . $cate['table_name'] . json_encode($where, JSON_UNESCAPED_UNICODE));
+            if (config('app_debug')) {
                 $this->error($e->getMessage());
-            }else{
+            } else {
                 $this->error('系统错误');
             }
         }
         //*******************翻页自定义区域
         //翻页总数
-        $page_data['count']= Db::table($cate['table_name'])
-                ->where($where)
-                ->count();
+        $page_data['count'] = Db::table($cate['table_name'])
+            ->where('lang', $this->lang)
+            ->where($where)
+            ->count();
         //总页数                有余进1
-        $page_data['pages'] = intval(ceil($page_data['count']/$limit));//修复浮点问题2021-07-02 10:44:43
-       
+        $page_data['pages'] = intval(ceil($page_data['count'] / $limit)); //修复浮点问题2021-07-02 10:44:43
+
         //一页数量
         $page_data['limit'] = $limit;
 
@@ -298,23 +303,23 @@ class Cms extends Frontend
         // }
 
         //第一页
-        $page_data['first_page'] = ['num'=>1,'url'=>$this->get_page_url($cate['id'] , 1)]; //2021-07-02 10:44:43
-        
+        $page_data['first_page'] = ['num' => 1, 'url' => $this->get_page_url($cate['id'], 1)]; //2021-07-02 10:44:43
+
         //上一页
-        $page_data['prev_page'] = $page>1 ? ['num'=>$page-1,'url'=>$this->get_page_url($cate['id'] , $page-1)]: null;        
-        
+        $page_data['prev_page'] = $page > 1 ? ['num' => $page - 1, 'url' => $this->get_page_url($cate['id'], $page - 1)] : null;
+
         //下一页
-        $page_data['next_page'] = $page_data['pages']>$page ? ['num'=>$page+1,'url'=>$this->get_page_url($cate['id'] , $page+1)] : null;
+        $page_data['next_page'] = $page_data['pages'] > $page ? ['num' => $page + 1, 'url' => $this->get_page_url($cate['id'], $page + 1)] : null;
 
         //最后一页
-        $page_data['last_page'] = $page_data['pages']?['num'=>$page_data['pages'],'url'=>$this->get_page_url($cate['id'] , $page_data['pages'])] : null;//2021-07-02 10:44:43
-        
+        $page_data['last_page'] = $page_data['pages'] ? ['num' => $page_data['pages'], 'url' => $this->get_page_url($cate['id'], $page_data['pages'])] : null; //2021-07-02 10:44:43
+
         //可以自行打断查看数据 ⌚️2021-06-23 22:09:59
         // halt($page_data);
 
-        $this->view->assign('page_data' , $page_data);
-        $this->view->assign('search' , $this->request->param('search',''));
-        
+        $this->view->assign('page_data', $page_data);
+        $this->view->assign('search', $this->request->param('search', ''));
+
         //*******************翻页自定义区域结束
 
 
@@ -322,13 +327,13 @@ class Cms extends Frontend
 
         foreach ($list as $key => &$val) {
             //没有外链 就生成（也可以自己注释了在前段判断）
-            if(!isset($val['outlink']) || empty($val['outlink'])){
-                $val['url'] = $this->get_show_url($val['cate_id'],$val['id']);
-            }else{
+            if (!isset($val['outlink']) || empty($val['outlink'])) {
+                $val['url'] = $this->get_show_url($val['cate_id'], $val['id']);
+            } else {
                 $val['url'] = $val['outlink'];
             }
         }
-        
+
 
         return $list;
     }
@@ -342,8 +347,8 @@ class Cms extends Frontend
      */
     public function get_limit($table_name)
     {
-        $cate = Db::name('cate')->where('table_name',$table_name)->find();
-        if(!$cate){
+        $cate = Db::name('cate')->where('table_name', $table_name)->find();
+        if (!$cate) {
             $this->error('没有该数据表');
         }
         return $cate['pagesize'];
@@ -359,8 +364,8 @@ class Cms extends Frontend
      */
     public function get_cate_data_By_table_name($table_name)
     {
-        $cate = Db::name('cate')->where('table_name',$table_name)->find();
-        if(!$cate){
+        $cate = Db::name('cate')->where('lang', $this->lang)->where('table_name', $table_name)->find();
+        if (!$cate) {
             $this->error('没有该数据表');
         }
         return $cate;
@@ -373,15 +378,15 @@ class Cms extends Frontend
      * @param int $id 内容id
      * @return void
      */
-    public function get_show_url($cate_id,$id)
+    public function get_show_url($cate_id, $id)
     {
         //也可以自己定义自己的url
-        if(Config::get('site.route_switch')){
-            $cate = Db::name('cate')->find($cate_id);
+        if (Config::get('site.route_switch')) {
+            $cate = Db::name('cate')->where('lang', $this->lang)->find($cate_id);
             // return '/cms/index/show/cate_id/'.$cate_id.'/id/'.$id;
-            return '/'.$cate['diyname'].'_show/'.$id;
-        }else{
-            return '/cms/index/show/cate_id/'.$cate_id.'/id/'.$id;
+            return '/' . $cate['diyname'] . '_show/' . $id;
+        } else {
+            return '/cms/index/show/cate_id/' . $cate_id . '/id/' . $id;
         }
     }
 
@@ -394,24 +399,22 @@ class Cms extends Frontend
      * @param array $NotNull 不能为空默认为假
      * @return void
      */
-    protected function get_field_arr($arr,$fields,$NotNull=false)
+    protected function get_field_arr($arr, $fields, $NotNull = false)
     {
-        if(!is_array($fields)){
-             //字符串
-             $fields = explode(',',$fields);
+        if (!is_array($fields)) {
+            //字符串
+            $fields = explode(',', $fields);
         }
-        
-        $new = array();
-        foreach($fields as $key=>$val){
-        
-                if(isset($arr[$val])){
-                    if(!$arr[$val])$this->error('请内容信息');
-                    $new[$val] = $arr[$val];
 
-                }elseif($NotNull){
-                    $this->error('请提交完整的信息');
-                }
-            
+        $new = array();
+        foreach ($fields as $key => $val) {
+
+            if (isset($arr[$val])) {
+                if (!$arr[$val]) $this->error('请内容信息');
+                $new[$val] = $arr[$val];
+            } elseif ($NotNull) {
+                $this->error('请提交完整的信息');
+            }
         }
         return $new;
     }
@@ -423,40 +426,40 @@ class Cms extends Frontend
      * @param int $page 页码
      * @return void
      */
-    public function get_page_url($cate_id,$page)
+    public function get_page_url($cate_id, $page)
     {
         $params = $this->request->param();
         unset($params['page']);
         unset($params['id']);
         $url_params = '';
-        if(sizeof($params)>0){
-            $url_params = '?'.http_build_query($params);
-        }//翻页等带上参数
+        if (sizeof($params) > 0) {
+            $url_params = '?' . http_build_query($params);
+        } //翻页等带上参数
 
-        if(Config::get('site.route_switch')){
-            $cate = Db::name('cate')->find($cate_id);
-            return $this->request->domain().'/'.$cate['diyname'].'/page/'.$page.$url_params;
-        }else{
-            return $this->request->domain().'/cms/index/cate/id/'.$cate_id.'/page/'.$page.$url_params;
+        if (Config::get('site.route_switch')) {
+            $cate = Db::name('cate')->where('lang', $this->lang)->find($cate_id);
+            return $this->request->domain() . '/' . $cate['diyname'] . '/page/' . $page . $url_params;
+        } else {
+            return $this->request->domain() . '/cms/index/cate/id/' . $cate_id . '/page/' . $page . $url_params;
         }
-        
     }
 
 
-    protected function getCustomPageNumbers($page, $total_pages) {
+    protected function getCustomPageNumbers($page, $total_pages)
+    {
         // 定义数组，包含边界页码和当前页码
         $page_numbers = [1, $page, $total_pages];
-    
+
         // 计算前后页码的范围
         $range = 2; // 我们希望在当前页码前后显示的页码数量
-    
+
         // 填充当前页码前后的页码
         for ($i = $page - $range; $i <= $page + $range; $i++) {
             if ($i > 0 && $i <= $total_pages && !in_array($i, $page_numbers)) {
                 array_push($page_numbers, $i);
             }
         }
-    
+
         // 确保数组中包含第一页和最后一页
         if (!in_array(1, $page_numbers)) {
             array_push($page_numbers, 1);
@@ -464,13 +467,13 @@ class Cms extends Frontend
         if (!in_array($total_pages, $page_numbers)) {
             array_push($page_numbers, $total_pages);
         }
-    
+
         // 排序数组
         sort($page_numbers);
-    
+
         // 去除重复的页码
         $page_numbers = array_unique($page_numbers);
-    
+
         return $page_numbers;
     }
 }

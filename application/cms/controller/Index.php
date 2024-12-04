@@ -176,7 +176,7 @@ class Index extends Cms
         }
 
         if($cate_id){
-            $where['cate_id'] = $cate_id;
+            $where['cate_id|copy_id'] = $cate_id;
         }
         if(isset($content['switch'])){
             $where['switch'] = 1;
@@ -187,6 +187,7 @@ class Index extends Cms
         //上一页 
         $prev = Db::table($cate['table_name'])
             ->where($where) //不需要回收站的可以注释
+            ->where('lang',$this->lang)
             ->where('id', '>', $id)
             ->order('id asc')
             ->limit(1)
@@ -199,6 +200,7 @@ class Index extends Cms
         //下一页
         $next = Db::table($cate['table_name'])
             ->where($where)
+            ->where('lang',$this->lang)
             ->where('id', '<', $id)
             ->order('id desc')
             ->limit(1)
