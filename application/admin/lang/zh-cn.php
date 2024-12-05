@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'del_other_lang'                                        => '删除非主语言全部数据',
+    'update_other_lang'                                     => '更新非主语言全部数据',
+    'update_other_lang_confirm'                             => '确认要更新非主语言全部数据吗？',
+    'del_other_lang_confirm'                                => '确认要删除非主语言以外的全部数据吗？',
+    'del_other_lang_success'                                => '删除非主语言全部数据成功',
+    'update_other_lang_success'                             => '更新非主语言全部数据成功',
     'fanyi'                                                 => '翻译',
     'fanyi_switch'                                          => '自动翻译',
     'Field'                                                 => '修改字段',

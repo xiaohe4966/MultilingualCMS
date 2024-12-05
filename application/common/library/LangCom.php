@@ -107,6 +107,27 @@ class LangCom
         }
     }
 
+    /**
+     * 删除其他语言栏目
+     */
+    public function delOtherCate(){
+        Log::info('删除其他栏目'.request()->ip());
+        return Db::name('cate')->where('copy_id','>', 0)->delete();
+    }
+
+
+
+    /**
+     * 删除其他语言数据
+     */
+    public function delOtherData($table_name){
+        Log::info('删除其他语言数据'.$table_name.request()->ip());
+        return Db::table($table_name)
+            ->where('copy_id','>', 0)
+            ->update(['deletetime'=> time()]);
+            // ->delete();
+    }
+
     protected function 自动保存栏目($cate, $lang)
     {
         $cateNew = $cate;

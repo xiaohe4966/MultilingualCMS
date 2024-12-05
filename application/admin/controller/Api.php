@@ -51,4 +51,15 @@ class Api extends Backend
 
        $this->success('同步完成,共插入'.$LangCom::$insertNum.'条栏目');
     }
+
+
+    /**
+     * 删除其他栏目语言
+     */
+    public function fanyi_all_cate(){
+        $LangCom = new \app\common\library\LangCom();
+        $LangCom->updateCate();
+ 
+        $this->success('同步完成,共插入'.$LangCom::$insertNum.'条栏目');
+     }
 }

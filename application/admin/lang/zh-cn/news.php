@@ -1,5 +1,10 @@
 <?php
+/*
+ * @Author: he4966
+ */
 return [
+    'fanyi_all_news'            => '同步翻译全部文章',
+    'del_other_news'           => '删除非主语言文章',
     'Title'       => '文章标题',
     'Image'       => '缩略图',
     'Images'      => '组图',

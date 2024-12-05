@@ -4,6 +4,7 @@
  */
 return [
     'fanyi_all_cate'            => '同步翻译全部栏目',
+    'del_other_cate'           => '删除非主语言栏目',
     'Type'         => '类型',
     'Type page'    => '单页',
     'Type link'    => '链接',
