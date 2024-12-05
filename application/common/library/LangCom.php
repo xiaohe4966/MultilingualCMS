@@ -17,8 +17,8 @@ use fast\Tree;
 class LangCom
 {
     use \traits\controller\Jump;
-    public $cateList;
-
+    public $cateList;//主栏目列表
+    public $mainList;//主语言数据列表
     public static $insertNum = 0;
     /**
      * 更新栏目
@@ -26,23 +26,8 @@ class LangCom
     public function updateCate($id = null)
     {
         $this->cateList = Db::table('fa_cate')->where('lang', '=', config('default_lang'))->select();
-
-        // $list  = \fast\Tree::instance()->init($cateList, 'parent_id')->getChildren(0);
-        // halt($list);
-
-
         $first  = \fast\Tree::instance()->init($this->cateList, 'parent_id')->getChild(0);
-        $fanyiWebArray = getWebListLangArray();
-
-        //去除默认语言 从数组中移除某个值
-        $kk = array_search(config('default_lang'), $fanyiWebArray);
-        if ($kk !== false) {
-            unset($fanyiWebArray[$kk]);
-        }
-
-        foreach ($fanyiWebArray as $key => $lang) {
-
-
+        foreach (getWebListOtherLangArray() as $key => $lang) {
             foreach ($first as $k => $v) {
                 $this->自动保存栏目($v, $lang);
                 // $second  = \fast\Tree::instance()->init($cateList, 'parent_id')->getChild($v['id']);
@@ -51,7 +36,6 @@ class LangCom
             }
         }
         // halt($first);
-
     }
 
 
@@ -111,8 +95,7 @@ class LangCom
      * 删除其他语言栏目
      */
     public function delOtherCate(){
-        Log::info('删除其他栏目'.request()->ip());
-        return Db::name('cate')->where('copy_id','>', 0)->delete();
+        return $this->delOtherData('fa_cate');
     }
 
 
@@ -128,6 +111,67 @@ class LangCom
             // ->delete();
     }
 
+
+
+
+
+
+    /**
+     * 更新其他数据
+     */
+    public function updateOtherData($table_name)
+    {
+        //使用该方法 表里面必须含有lang字段,    或包含cate_id字段
+        $this->mainList = Db::table($table_name)->where('lang', '=', config('default_lang'))->whereNull('deletetime')->select();
+        foreach (getWebListOtherLangArray() as $key => $lang) {
+            foreach ($this->mainList as $k => $v) {
+                unset($copy);
+                unset($where);
+                $copy = $v;
+                unset($copy['id']);
+                $copy['lang'] = $where['lang'] = $lang;
+                $copy['copy_id'] = $where['id'] = $v['id'];
+                $res = Db::table($table_name)->where($where)->find();
+                $翻译 = true;
+                $修改 = false;
+                if ($res) {
+                    if(isset($res['fanyi_switch']) && $res['fanyi_switch'] == 0){
+                        //不翻译
+                        $翻译 = false;
+                    }
+                    if ($this->getFanyiSha1($table_name,$copy) != $res['fanyi_sha1']) {
+                        $修改 = true;
+                    }
+                    $copy['fanyi_num'] = $copy['fanyi_num'] + 1;
+                }else{
+                    $copy['fanyi_num'] = 1;
+                }
+                if ($翻译) {
+                    $copy = $this->FanyiTableContent($copy, $lang, $table_name); //自动翻译栏目内容
+                }else{
+
+                }
+                //如果设置了栏目id 则自动更新栏目id
+                if (isset($copy['cate_id']) && $copy['cate_id']>0){
+                    $copy['cate_id'] = getOtherLangCateId($v['cate_id'], $lang);//获取其他语言栏目id,⚠️只能传入主语言栏目id⚠️
+                }
+                $copy['fanyi_time'] = time();
+                $copy['fanyi_sha1'] = $this->getFanyiSha1($table_name,$copy);
+
+                if ($修改) {
+                    Db::table($table_name)->where('id', $v['id'])->update($copy);
+                    self::$insertNum++;
+                }
+                else {
+                    Db::table($table_name)->insert($copy);
+                    self::$insertNum++;
+                }
+                
+            }
+        }
+        return self::$insertNum;
+    }
+
     protected function 自动保存栏目($cate, $lang)
     {
         $cateNew = $cate;
@@ -137,7 +181,7 @@ class LangCom
         $res = Db::name('cate')->where('lang', $lang)->where('copy_id', $cate['id'])->find();
         if (!$res) {
             $cateNew['parent_id'] = $this->getLangParentId($cate['parent_id'], $lang);
-            $cateNew = $this->FanyiCateContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
+            $cateNew = $this->FanyiTableContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
 
             $cateNew['fanyi_time'] = time();
             $cateNew['fanyi_num'] = 1;
@@ -171,7 +215,7 @@ class LangCom
             // if (!$res) {
             //     $cateNew['parent_id'] = $this->getLangParentId($cate['parent_id'], $lang);
 
-            //     $cateNew = $this->FanyiCateContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
+            //     $cateNew = $this->FanyiTableContent($cateNew, $lang, 'fa_cate'); //自动翻译栏目内容
             //     $cateNew['fanyi_time'] = time();
             //     $cateNew['fanyi_num'] = 1;
             //     $cateNew['fanyi_sha1'] = $this->getCateSha1($cateNew);
@@ -196,9 +240,9 @@ class LangCom
      * @param string $table_name
      * @return mixed
      */
-    public function FanyiCateContent($cateNew, $lang, $table_name = 'fa_cate')
+    public function FanyiTableContent($cateNew, $lang, $table_name = 'fa_cate')
     {
-        $fieldsArr = getFanyiTablesFieldsArray('fa_cate'); //获取需要翻译的字段[]
+        $fieldsArr = getFanyiTablesFieldsArray($table_name); //获取需要翻译的字段[]
         foreach ($fieldsArr as $field) {
             // halt($cateNew);
             // halt(getFanyiLang($cateNew['lang']));
@@ -260,10 +304,21 @@ class LangCom
 
     public function getCateSha1($cate)
     {
-        $fieldsArr = getFanyiTablesFieldsArray('fa_cate'); //获取需要翻译的字段[]
+        // $fieldsArr = getFanyiTablesFieldsArray('fa_cate'); //获取需要翻译的字段[]
+        // $str = '';
+        // foreach ($fieldsArr as $field) {
+        //     $str .= $cate[$field];
+        // }
+        // return sha1($str);
+        $this->getFanyiSha1('fa_cate', $cate);
+    }
+
+    public function getFanyiSha1($table_name,$arr)
+    {
+        $fieldsArr = getFanyiTablesFieldsArray($table_name); //获取需要翻译的字段[]
         $str = '';
         foreach ($fieldsArr as $field) {
-            $str .= $cate[$field];
+            $str .= $arr[$field];
         }
         return sha1($str);
     }
