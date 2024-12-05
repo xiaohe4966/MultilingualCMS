@@ -677,6 +677,22 @@ if (!function_exists('getWebListOtherLangArray')) {
 
 
 /**
+ * 获取其他语言cate_id
+ */
+if (!function_exists('getOtherLangCateId')) {
+    function getOtherLangCateId($cate_id, $lang)
+    {
+        $cate = Db::name('cate')->where('id', $cate_id)->where('lang', config('default_lang'))->find();
+        if ($cate) {
+            return Db::name('cate')->where('copy_id', $cate_id)->where('lang', $lang)->value('id');
+        } else {
+            throw new \Exception('未找到主语言该分类');
+        }
+    }
+}
+
+
+/**
  * 获取当前语言
  */
 if (!function_exists('getDomainLang')) {
