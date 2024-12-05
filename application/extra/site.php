@@ -76,7 +76,7 @@ return array (
   'default_auth_rule_pid' => '',
   'crud_copy_switch' => '0',
   'link_auto_hide' => '1',
-  'baidu_app_id' => '20220913001341285',
-  'baidu_app_secret' => '27kDTUk0dVXMsUCBsi1l',
+  'baidu_app_id' => '20241130002215359',
+  'baidu_app_secret' => 'mfLn2xHTbgVeRwY250n1',
   'fanyi_app' => 'baidu',
 );
