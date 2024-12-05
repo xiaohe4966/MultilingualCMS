@@ -647,7 +647,7 @@ if (!function_exists('getWebList')) {
 }
 
 /**
- * 获取网站列表
+ * 获取网站数组(lang)
  */
 if (!function_exists('getWebListLangArray')) {
     function getWebListLangArray()
@@ -657,6 +657,24 @@ if (!function_exists('getWebListLangArray')) {
         return $list;
     }
 }
+
+
+/**
+ * 获取非主语言的网站数组(lang)
+ */
+if (!function_exists('getWebListOtherLangArray')) {
+    function getWebListOtherLangArray()
+    {
+        $WebArray = getWebListLangArray();
+        //去除默认语言 从数组中移除某个值
+        $kk = array_search(config('default_lang'), $WebArray);
+        if ($kk !== false) {
+            unset($WebArray[$kk]);
+        }
+        return $WebArray;
+    }
+}
+
 
 /**
  * 获取当前语言
