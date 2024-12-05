@@ -674,4 +674,17 @@ trait BackendLangs
         // }
         $this->success('同步完成,共加入'.$num.'条数据');
     }
+
+
+
+    public function fanyi($ids = null){
+        $row = $this->model->get($ids);
+        if (!$row) {
+            $this->error(__('No Results were found'));
+        }
+
+        if($row->lang!=config('default_lang')){
+            $this->error(__('This is not the primary language data'));
+        }
+    }
 }

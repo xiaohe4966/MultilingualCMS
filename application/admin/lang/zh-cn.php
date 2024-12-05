@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'This is not the primary language data'                 => '这不是主语言数据',
     'del_other_lang'                                        => '删除非主语言全部数据',
     'update_other_lang'                                     => '更新非主语言全部数据',
     'update_other_lang_confirm'                             => '确认要更新非主语言全部数据吗？',

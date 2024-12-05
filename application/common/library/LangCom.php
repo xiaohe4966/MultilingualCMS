@@ -91,6 +91,67 @@ class LangCom
         }
     }
 
+
+
+
+    /**
+     * 翻译其他语言数据
+     * @param string $table_name 数据表名称
+     * @param int $id 数据ID
+     */
+    public function fanyiOtherData($table_name,$id)
+    {
+       //使用该方法 表里面必须含有lang字段,    或包含cate_id字段
+       $this->mainList = Db::table($table_name)->where('lang', '=', config('default_lang'))->where('id','in',$id)->whereNull('deletetime')->select();
+       foreach (getWebListOtherLangArray() as $key => $lang) {
+           foreach ($this->mainList as $k => $v) {
+               unset($copy);
+               unset($where);
+               $copy = $v;
+               unset($copy['id']);
+               $copy['lang'] = $where['lang'] = $lang;
+               $copy['copy_id'] = $where['id'] = $v['id'];
+               $res = Db::table($table_name)->where($where)->find();
+               $翻译 = true;
+               $修改 = false;
+               if ($res) {
+                   if(isset($res['fanyi_switch']) && $res['fanyi_switch'] == 0){
+                       //不翻译
+                       $翻译 = false;
+                   }
+                   if ($this->getFanyiSha1($table_name,$copy) != $res['fanyi_sha1']) {
+                       $修改 = true;
+                   }
+                   $copy['fanyi_num'] = $copy['fanyi_num'] + 1;
+               }else{
+                   $copy['fanyi_num'] = 1;
+               }
+               if ($翻译) {
+                   $copy = $this->FanyiTableContent($copy, $lang, $table_name); //自动翻译栏目内容
+               }else{
+
+               }
+               //如果设置了栏目id 则自动更新栏目id
+               if (isset($copy['cate_id']) && $copy['cate_id']>0){
+                   $copy['cate_id'] = getOtherLangCateId($v['cate_id'], $lang);//获取其他语言栏目id,⚠️只能传入主语言栏目id⚠️
+               }
+               $copy['fanyi_time'] = time();
+               $copy['fanyi_sha1'] = $this->getFanyiSha1($table_name,$copy);
+
+               if ($修改) {
+                   Db::table($table_name)->where('id', $v['id'])->update($copy);
+                   self::$insertNum++;
+               }
+               else {
+                   Db::table($table_name)->insert($copy);
+                   self::$insertNum++;
+               }
+               
+           }
+       }
+       return self::$insertNum;
+    }
+
     /**
      * 删除其他语言栏目
      */
