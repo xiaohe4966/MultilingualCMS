@@ -16,6 +16,9 @@
                         {%multipleHtml%}
 
                         {%recyclebinHtml%}
+
+                        <a href="javascript:;" class="btn btn-danger btn-ajax {:$auth->check('{%controllerUrl%}/del_other_lang')?'':'hide'}" title="{:__('del_other_lang')}" data-url="{%controllerUrl%}/del_other_lang" data-confirm="{:__('del_other_lang_confirm')}"><i class="fa fa-trash"></i> {:__('del_other_lang')}</a>
+                        <a href="javascript:;" class="btn btn-primary btn-ajax {:$auth->check('{%controllerUrl%}/update_other_lang')?'':'hide'}" title="{:__('update_other_lang')}" data-url="{%controllerUrl%}/update_other_lang" data-confirm="{:__('update_other_lang_confirm')}"><i class="fa fa-refresh"></i> {:__('update_other_lang')}</a>
                     </div>
                     <table id="table" class="table table-striped table-bordered table-hover table-nowrap"
                            data-operate-edit="{:$auth->check('{%controllerUrl%}/edit')}"
