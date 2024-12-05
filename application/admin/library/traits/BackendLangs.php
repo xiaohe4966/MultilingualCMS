@@ -665,13 +665,13 @@ trait BackendLangs
      */
     public function update_other_lang()
     {
-        try {
+        // try {
             $LangCom = new \app\common\library\LangCom();
-            $num = $LangCom->delOtherData($this->model->getTable());
+            $num = $LangCom->updateOtherData($this->model->getTable());
           
-        } catch (\Throwable $th) {
-            $this->error('失败:' . $th->getMessage());
-        }
-        $this->success('删除完成,共删除'.$num.'条数据');
+        // } catch (\Throwable $th) {
+        //     $this->error('失败:' . $th->getMessage());
+        // }
+        $this->success('同步完成,共加入'.$num.'条数据');
     }
 }
