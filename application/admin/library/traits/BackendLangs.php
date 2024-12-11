@@ -686,5 +686,8 @@ trait BackendLangs
         if($row->lang!=config('default_lang')){
             $this->error(__('This is not the primary language data'));
         }
+        $LangCom = new \app\common\library\LangCom();
+        $num = $LangCom->fanyiOtherData($this->model->getTable(), $ids);
+        $this->success('同步完成,共翻译'.$num.'条数据');
     }
 }
