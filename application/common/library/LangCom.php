@@ -304,6 +304,9 @@ class LangCom
     public function FanyiTableContent($cateNew, $lang, $table_name = 'fa_cate')
     {
         $fieldsArr = getFanyiTablesFieldsArray($table_name); //获取需要翻译的字段[]
+        if(empty($fieldsArr)){
+            $this->error($table_name.'没有设置需要翻译的字段');
+        }
         foreach ($fieldsArr as $field) {
             // halt($cateNew);
             // halt(getFanyiLang($cateNew['lang']));
