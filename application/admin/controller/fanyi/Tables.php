@@ -3,7 +3,7 @@
 namespace app\admin\controller\fanyi;
 
 use app\common\controller\Backend;
-
+use think\Db;
 /**
  * 需要翻译字段
  *
