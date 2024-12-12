@@ -102,6 +102,15 @@ class Cms extends Frontend
                 } else {
                     $val['url'] = '/cms/index/cate/id/' . $val['id'];
                 }
+
+         
+                if(Config::get('site.html_suffix_switch')){
+                    //判断后缀是否带有.html
+                    if (substr($val['url'], -5) != '.html') {
+                        $val['url'] = $val['url'] . '.html';
+                    }
+                }
+        
             } else {
                 $val['url'] = $val['outlink'];
             }
