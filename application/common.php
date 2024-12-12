@@ -719,6 +719,9 @@ if (!function_exists('getFanyiTablesFieldsArray')) {
     function getFanyiTablesFieldsArray($table = null)
     {
         $fanyi_fields = \think\Db::name('fanyi_tables')->cache(120)->where('table_name', $table)->value('fanyi_fields');
+        if (!$fanyi_fields) {
+            return [];
+        }
         $fanyi_fields = explode(',', $fanyi_fields);
         return $fanyi_fields;
     }
@@ -756,5 +759,29 @@ if (!function_exists('getFanyiLang')) {
         } catch (\Throwable $th) {
             \think\Log::error('getFanyiLang:' . $th->getMessage() . '行:' . $th->getLine());
         }
+    }
+}
+
+
+if (!function_exists('dbconfig')) {
+    function dbconfig($key = null, $lang = null)
+    {
+        if(!$lang){
+            $lang = getDomainLang();
+        }
+
+        $dbconfig = Cache::get('_DBCONFIG'.$lang);
+        if (!$dbconfig) {
+            $dbconfig = Db::name('dbconfig')
+                ->cache(120)
+                ->where('lang',$lang)
+                ->column('value','name');
+
+            Cache::set('_DBCONFIG'.$lang, $dbconfig);
+        }
+        if ($key) {
+            return $dbconfig[$key] ?? null;
+        }
+        return $dbconfig;
     }
 }
