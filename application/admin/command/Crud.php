@@ -1200,7 +1200,6 @@ class Crud extends Command
                     $data['controllerCopy'] = $this->getReplacedStub('controllercopy', $data);
             }
 
-            halt($data);
             // 生成控制器文件
             if(Config::get('site.crud_copy_switch')){
                 $this->writeToFile('controller2', $data, $controllerFile);

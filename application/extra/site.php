@@ -31,6 +31,8 @@ return array (
     'gbook' => '留言配置',
     'superadmin' => '超级管理员',
     'translate' => '翻译',
+    'SEO' => 'SEO配置',
+    'google' => '谷歌设置',
   ),
   'mail_type' => '1',
   'mail_smtp_host' => 'smtp.qq.com',
@@ -78,5 +80,9 @@ return array (
   'link_auto_hide' => '1',
   'baidu_app_id' => '20241130002215359',
   'baidu_app_secret' => 'mfLn2xHTbgVeRwY250n1',
+  'baidu_app_qps' => '1',
+  'html_suffix_switch' => '1',
+  'pro_cate_seotitle' => 'China {keyword} Wuxi, wangke - Factory Direct Price - Tank',
   'fanyi_app' => 'baidu',
+  'google_search_url' => 'http://43.224.154.228:8001',
 );

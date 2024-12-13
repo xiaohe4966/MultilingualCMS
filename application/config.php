@@ -281,7 +281,7 @@ return [
         //是否同一账号同一时间只能在一个地方登录
         'login_unique'          => false,
         //是否开启IP变动检测
-        'loginip_check'         => true,
+        'loginip_check'         => false,
         //登录页默认背景图
         'login_background'      => "",
         //是否启用多级菜单导航
@@ -295,7 +295,7 @@ return [
         //后台是否启用面包屑
         'breadcrumb'            => false,
         //是否允许未知来源的插件压缩包
-        'unknownsources'        => false,
+        'unknownsources'        => true,
         //插件启用禁用时是否备份对应的全局文件
         'backup_global_files'   => true,
         //是否开启后台自动日志记录

@@ -2,6 +2,9 @@
 /*
  * @Author: he4966
  */
+/*
+ * @Author: he4966
+ */
 
 namespace app\admin\controller;
 
@@ -69,8 +72,9 @@ class Cmsapi extends Backend
     }
 
 
-    public function upload()
+    public function ipdata()
     {
+        
     }
 
 }
