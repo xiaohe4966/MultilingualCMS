@@ -1,5 +1,10 @@
 define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
-
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    var default_lang = getCookie('default_lang');//获取cookie中的默认语言
     var Controller = {
         index: function () {
             // 初始化表格参数配置
@@ -42,7 +47,37 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'cate.name', title: __('Cate.name'), operate: 'LIKE'},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                       
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, buttons: [
+
+                            {
+                                name: 'fanyi',
+                                text: __('fanyi'),
+                                title: function (row) {
+                                    return __('fanyi');
+                                },
+
+                                hidden: function (row) {
+                                    if (row.lang == default_lang) {//
+                                        return false; //显示该按钮
+                                    } else {
+                                        return true; //隐藏该按钮
+                                    }
+                                },
+                                classname: 'btn btn-xs btn-success btn-ajax',
+                                icon: 'fa fa-language',
+                                url: 'pro/fanyi?ids={id}',
+                                success: function (data, ret) {
+                                    Layer.msg(ret.msg);
+                                    $(".btn-refresh").trigger("click");
+                                },
+                                error: function (err) {
+                                    console.log(err);
+                                }
+
+                            },
+                            {name: 'copy',title: __('Copy'),text: __('Copy'),classname: 'btn btn-xs btn-info btn-ajax',icon: 'fa fa-copy',url: function(row){return 'pro/copy?ids=' + row.id}}
+                        ], formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
